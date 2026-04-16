@@ -44,12 +44,15 @@ public class UserRepository {
 
     public User save(User user) {
         String sql = "INSERT INTO \"Users\" (username, displayname, avatar, password, email, \"createdAt\", \"updatedAt\") VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        // get current time ms
         long currentTime = Instant.now().toEpochMilli();
 
         // use keyholder get id from postgresql
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
+            // request db return generated keys
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, user.username());
             ps.setString(2, user.displayname());
@@ -61,7 +64,7 @@ public class UserRepository {
             return ps;
         }, keyHolder);
 
-        // get real ID and return full User object
+        // extract id value
         Long newId = ((Number) keyHolder.getKeys().get("id")).longValue();
         return new User(newId, user.username(), user.displayname(), user.avatar(), user.password(), user.email(),
                 currentTime, currentTime);
@@ -77,5 +80,17 @@ public class UserRepository {
     public int deleteById(Long id) {
         String sql = "DELETE FROM \"Users\" WHERE id = ?";
         return jdbcTemplate.update(sql, id);
+    }
+
+    public boolean existsByUsername(String username) {
+        String sql = "SELECT COUNT(id) FROM \"Users\" WHERE username = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, username);
+        return count != null && count > 0;
+    }
+
+    public boolean existsByEmail(String email) {
+        String sql = "SELECT COUNT(id) FROM \"Users\" WHERE email = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
+        return count != null && count > 0;
     }
 }

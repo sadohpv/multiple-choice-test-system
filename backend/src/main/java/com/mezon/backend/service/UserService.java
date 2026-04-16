@@ -25,8 +25,7 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        userRepository.save(user);
-        return user;
+        return userRepository.save(user);
     }
 
     public boolean updateUser(Long id, User user) {

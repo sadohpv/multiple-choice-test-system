@@ -1,10 +1,12 @@
 package com.mezon.backend.controller;
 
-import com.mezon.backend.entity.User;
+import com.mezon.backend.dto.UserCreateRequest;
+import com.mezon.backend.dto.UserResponse;
 import com.mezon.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -18,26 +20,32 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserResponse> getAllUsers() {
+        return userService.getAllUsers().stream()
+                .map(UserResponse::from)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(UserResponse::from)
+                .map(ResponseEntity::ok) // return 200 ok if found
+                .orElse(ResponseEntity.notFound().build()); // return 404 if null
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserCreateRequest req) {
+        // save to db then convert to dto
+        UserResponse created = UserResponse.from(userService.createUser(req));
+        // return 201 status & set location header
+        return ResponseEntity.created(URI.create("/api/users/" + created.id())).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User user) {
-        if (userService.updateUser(id, user)) {
+    public ResponseEntity<String> updateUser(@PathVariable Long id,
+            @RequestBody UserCreateRequest req) {
+        if (userService.updateUser(id, req)) {
             return ResponseEntity.ok("User updated successfully");
         }
         return ResponseEntity.notFound().build();

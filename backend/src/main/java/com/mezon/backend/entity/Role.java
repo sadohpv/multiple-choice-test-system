@@ -34,4 +34,7 @@ public class Role {
     // Bạn cũng cần thêm Getter để Controller có thể lấy dữ liệu ra trả về cho Frontend
     public String getRoleName() { return roleName; }
     // ... tương tự cho các biến khác
+    public String getDescription() {
+    return description;
+}
 }

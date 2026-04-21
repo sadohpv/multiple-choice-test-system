@@ -1,12 +1,15 @@
 package com.mezon.backend.repository;
 
+import com.mezon.backend.entity.Permission;
 import com.mezon.backend.entity.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 @Repository
 public class RoleRepository {
     @Autowired
@@ -20,6 +23,7 @@ public class RoleRepository {
             role.setId(rs.getLong("id"));
             role.setRoleName(rs.getString("role_name"));
             role.setDescription(rs.getString("description"));
+            role.setRoleLevel(rs.getInt("role_level"));
             role.setCreatedAt(rs.getLong("createdAt"));
             role.setUpdatedAt(rs.getLong("updatedAt"));
             return role;
@@ -27,15 +31,30 @@ public class RoleRepository {
     }
 
     // READ: Lấy theo ID
-    public Optional<Role> findById(Long id) {
-        String sql = "SELECT * FROM \"Roles\" WHERE id = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+  public Optional<Role> findById(Long id) {
+        String sqlRole = "SELECT * FROM \"Roles\" WHERE id = ?";
+        
+        return jdbcTemplate.query(sqlRole, (rs, rowNum) -> {
             Role role = new Role();
             role.setId(rs.getLong("id"));
             role.setRoleName(rs.getString("role_name"));
             role.setDescription(rs.getString("description"));
-            role.setCreatedAt(rs.getLong("createdAt"));
-            role.setUpdatedAt(rs.getLong("updatedAt"));
+            role.setRoleLevel(rs.getInt("role_level"));
+            
+            // Query lấy permissions qua bảng trung gian
+            String sqlPerms = "SELECT p.* FROM \"Permissions\" p " +
+                              "JOIN \"Role_Permissions\" rp ON p.id = rp.permission_id " +
+                              "WHERE rp.role_id = ?";
+            
+            List<Permission> perms = jdbcTemplate.query(sqlPerms, (rsP, rowNumP) -> {
+                return new Permission(
+                    rsP.getLong("id"),
+                    rsP.getString("permission_name"),
+                    rsP.getString("description")
+                );
+            }, id);
+            
+            role.setPermissions(perms);
             return role;
         }, id).stream().findFirst();
     }

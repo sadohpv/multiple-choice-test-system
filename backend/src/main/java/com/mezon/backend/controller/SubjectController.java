@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mezon.backend.entity.Role;
 import com.mezon.backend.entity.Subject;
 import com.mezon.backend.repository.SubjectRepository;
 
 @RestController
-@RequestMapping("/api/roles")
-@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/api/subjects")
+@CrossOrigin(origins = "*")
 public class SubjectController {
 
     @Autowired

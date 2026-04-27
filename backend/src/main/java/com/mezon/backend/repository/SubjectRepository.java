@@ -14,7 +14,7 @@ public class SubjectRepository {
 	private JdbcTemplate jdbcTemplate;
 
 	public List<Subject> findAll() {
-		String sql = "SELECT * FROM \"Subjects\"";
+		String sql = "SELECT * FROM \"Subject\"";
 		return jdbcTemplate.query(sql, (rs, rowNum) -> {
 			Subject subject = new Subject();
 			subject.setId(rs.getLong("id"));

@@ -26,6 +26,10 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public Optional<User> login(String identity, String password) {
+        return userRepository.findByUsernameOrEmailAndPassword(identity, password);
+    }
+
     public User createUser(UserCreateRequest req) {
         if (userRepository.existsByUsername(req.username())) {
             throw new DuplicateFieldException("Username '" + req.username() + "' already exists");

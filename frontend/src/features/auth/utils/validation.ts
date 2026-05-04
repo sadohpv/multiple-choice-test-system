@@ -32,8 +32,6 @@ export function validateLogin(values: LoginFormValues) {
 
     if (!values.password) {
         errors.password = "Nhập mật khẩu để tiếp tục.";
-    } else if (values.password.length < 8) {
-        errors.password = "Mật khẩu cần tối thiểu 8 ký tự.";
     }
 
     return errors;

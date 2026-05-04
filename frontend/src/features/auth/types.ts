@@ -13,6 +13,14 @@ export type AuthUser = {
     updatedAt: number | null;
 };
 
+export type AuthSession = {
+    tokenType: "Bearer" | string;
+    accessToken: string;
+    expiresIn: number;
+    refreshToken: string;
+    user: AuthUser;
+};
+
 export type LoginFormValues = {
     identity: string;
     password: string;

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
-import { AUTH_PATHS } from "@/constants/path";
-import { register } from "../api/auth";
+import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
+import { useAuth } from "../context/useAuth";
 import type { FieldErrors, FormStatus, RegisterFormValues } from "../types";
 import { validateRegister } from "../utils/validation";
 
@@ -22,6 +22,8 @@ const idleStatus: FormStatus = {
 };
 
 export function RegisterPage() {
+    const navigate = useNavigate();
+    const { register } = useAuth();
     const [values, setValues] = useState<RegisterFormValues>(initialValues);
     const [errors, setErrors] = useState<FieldErrors<RegisterFormValues>>({});
     const [status, setStatus] = useState<FormStatus>(idleStatus);
@@ -71,11 +73,7 @@ export function RegisterPage() {
 
         try {
             await register(payloadValues);
-            setValues(initialValues);
-            setStatus({
-                message: "Tạo tài khoản thành công.",
-                tone: "success",
-            });
+            navigate(APP_PATHS.profile, { replace: true });
         } catch (error) {
             setStatus({
                 message: error instanceof Error ? error.message : "Đã có lỗi xảy ra khi tạo tài khoản.",
@@ -90,11 +88,12 @@ export function RegisterPage() {
         <div className="space-y-6">
             <div className="space-y-1">
                 <h2 className="text-xl font-semibold text-zinc-950">Đăng ký</h2>
-                <p className="text-sm text-zinc-500">Điền thông tin để tạo tài khoản.</p>
+                <p className="text-sm text-zinc-500">Tạo tài khoản user để bắt đầu luyện thi.</p>
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit} noValidate>
                 <AuthField
+                    autoComplete="username"
                     error={errors.username}
                     label="Tên đăng nhập"
                     name="username"

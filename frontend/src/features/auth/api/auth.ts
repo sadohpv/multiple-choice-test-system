@@ -1,12 +1,17 @@
 import { AxiosError } from "axios";
-import { STORAGE_KEYS } from "@/constants/storage-keys";
 import { axiosInstance } from "@/services/axiosInstance";
 import type {
     AuthMessageResponse,
+    AuthSession,
     AuthUser,
     LoginFormValues,
     RegisterFormValues,
 } from "../types";
+import {
+    clearStoredAuthSession,
+    readStoredAuthSession,
+    storeAuthSession,
+} from "../utils/session";
 import { extractErrorMessage } from "../utils/validation";
 
 type RegisterPayload = {
@@ -31,8 +36,8 @@ function resolveApiError(error: unknown, fallback: string) {
 
 export async function login(values: LoginFormValues) {
     try {
-        const response = await axiosInstance.post<AuthUser>("/api/auth/login", values);
-        localStorage.setItem(STORAGE_KEYS.authUser, JSON.stringify(response.data));
+        const response = await axiosInstance.post<AuthSession>("/auth/login", values);
+        storeAuthSession(response.data);
         return response.data;
     } catch (error) {
         throw new Error(resolveApiError(error, "Đăng nhập không thành công."));
@@ -49,7 +54,8 @@ export async function register(values: RegisterFormValues) {
     };
 
     try {
-        const response = await axiosInstance.post<AuthUser>("/api/users", payload);
+        const response = await axiosInstance.post<AuthSession>("/auth/signup", payload);
+        storeAuthSession(response.data);
         return response.data;
     } catch (error) {
         throw new Error(resolveApiError(error, "Không thể tạo tài khoản lúc này."));
@@ -57,11 +63,29 @@ export async function register(values: RegisterFormValues) {
 }
 
 export async function logout() {
+    const session = readStoredAuthSession();
+
     try {
-        const response = await axiosInstance.post<AuthMessageResponse>("/api/auth/logout");
-        localStorage.removeItem(STORAGE_KEYS.authUser);
+        if (!session?.refreshToken) {
+            return { message: "Đăng xuất thành công." } satisfies AuthMessageResponse;
+        }
+
+        const response = await axiosInstance.post<AuthMessageResponse>("/auth/logout", {
+            refreshToken: session.refreshToken,
+        });
         return response.data;
     } catch (error) {
         throw new Error(resolveApiError(error, "Đăng xuất không thành công."));
+    } finally {
+        clearStoredAuthSession();
+    }
+}
+
+export async function getCurrentUser() {
+    try {
+        const response = await axiosInstance.get<AuthUser>("/auth/me");
+        return response.data;
+    } catch (error) {
+        throw new Error(resolveApiError(error, "Không thể tải thông tin tài khoản."));
     }
 }

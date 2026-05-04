@@ -17,7 +17,7 @@ export function AuthLayout() {
                 <Card className="w-full">
                     <CardHeader className="space-y-4 pb-4">
                         <div className="space-y-1">
-                            <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
+                            <p className="text-xs font-medium uppercase text-zinc-500">
                                 Mezon Campus
                             </p>
                             <CardTitle>Tài khoản</CardTitle>

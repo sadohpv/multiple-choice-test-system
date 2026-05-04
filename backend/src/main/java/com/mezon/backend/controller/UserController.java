@@ -3,6 +3,7 @@ package com.mezon.backend.controller;
 import com.mezon.backend.dto.UserCreateRequest;
 import com.mezon.backend.dto.UserResponse;
 import com.mezon.backend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserCreateRequest req) {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreateRequest req) {
         // save to db then convert to dto
         UserResponse created = UserResponse.from(userService.createUser(req));
         // return 201 status & set location header
@@ -44,7 +45,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id,
-            @RequestBody UserCreateRequest req) {
+            @Valid @RequestBody UserCreateRequest req) {
         if (userService.updateUser(id, req)) {
             return ResponseEntity.ok("User updated successfully");
         }

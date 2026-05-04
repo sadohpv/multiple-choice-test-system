@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
-import { AUTH_PATHS } from "@/constants/path";
-import { login } from "../api/auth";
+import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
+import { useAuth } from "../context/useAuth";
 import type { FormStatus, LoginFormValues } from "../types";
 import { validateLogin } from "../utils/validation";
 
@@ -20,6 +20,9 @@ const idleStatus: FormStatus = {
 };
 
 export function LoginPage() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { login } = useAuth();
     const [values, setValues] = useState<LoginFormValues>(initialValues);
     const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
     const [status, setStatus] = useState<FormStatus>(idleStatus);
@@ -46,10 +49,7 @@ export function LoginPage() {
 
         try {
             await login(payload);
-            setStatus({
-                message: "Đăng nhập thành công.",
-                tone: "success",
-            });
+            navigate(resolveRedirectPath(location.state), { replace: true });
         } catch (error) {
             setStatus({
                 message: error instanceof Error ? error.message : "Đăng nhập không thành công.",
@@ -64,7 +64,7 @@ export function LoginPage() {
         <div className="space-y-6">
             <div className="space-y-1">
                 <h2 className="text-xl font-semibold text-zinc-950">Đăng nhập</h2>
-                <p className="text-sm text-zinc-500">Nhập thông tin để tiếp tục.</p>
+                <p className="text-sm text-zinc-500">Nhập thông tin tài khoản để tiếp tục.</p>
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit} noValidate>
@@ -113,4 +113,20 @@ export function LoginPage() {
             </form>
         </div>
     );
+}
+
+function resolveRedirectPath(state: unknown) {
+    if (
+        state &&
+        typeof state === "object" &&
+        "from" in state &&
+        state.from &&
+        typeof state.from === "object" &&
+        "pathname" in state.from &&
+        typeof state.from.pathname === "string"
+    ) {
+        return state.from.pathname;
+    }
+
+    return APP_PATHS.home;
 }

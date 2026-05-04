@@ -1,4 +1,4 @@
 export const AUTH_PATHS = {
-    login: "/dang-nhap",
-    register: "/dang-ky",
+    login: "/login",
+    register: "/register",
 } as const;

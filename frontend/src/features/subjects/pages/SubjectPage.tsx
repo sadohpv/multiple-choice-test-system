@@ -15,13 +15,24 @@ export function SubjectPage() {
     }, []);
 
     return (
-        <div className="flex w-full gap-2 ">
-            {data.map(subject => (
-                <div className="w-28 h-16">
-                    <p>{subject.subjectName}</p>
-                    <p>{subject.slug}</p>
-                    <p>{subject.createdAt}</p>
-                    <p>{typeof subject.createdAt}</p>
+        <div className="flex flex-wrap gap-4 w-full">
+            {data.map((subject, index) => (
+                <div
+                    key={subject.id ?? index}
+                    className="w-56 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="mb-2">
+                        <p className="text-sm font-semibold text-gray-800 truncate">{subject.subjectName}</p>
+                        <p className="text-xs text-gray-500">{subject.slug}</p>
+                    </div>
+
+                    <div className="mt-3 space-y-1 text-xs text-gray-600">
+                        <p>
+                            <span className="font-medium text-gray-500">Created:</span> {String(subject.createdAt)}
+                        </p>
+                        <p>
+                            <span className="font-medium text-gray-500">Type:</span> {typeof subject.createdAt}
+                        </p>
+                    </div>
                 </div>
             ))}
         </div>

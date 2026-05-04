@@ -1,14 +1,15 @@
 package com.mezon.backend.repository;
 
-import com.mezon.backend.entity.RefreshToken;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Optional;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import com.mezon.backend.entity.RefreshToken;
 
 @Repository
 public class RefreshTokenRepository {
@@ -32,14 +33,30 @@ public class RefreshTokenRepository {
             nullableLong(rs, "created_at"));
 
     public RefreshToken save(Long userId, String tokenHash, long expiresAt) {
-        long now = Instant.now().toEpochMilli();
-        String sql = """
-                INSERT INTO auth_refresh_tokens (user_id, token_hash, expires_at, created_at)
-                VALUES (?, ?, ?, ?)
-                RETURNING id, user_id, token_hash, expires_at, revoked_at, created_at
-                """;
+        try {
+            long now = Instant.now().toEpochMilli();
 
-        return jdbcTemplate.queryForObject(sql, rowMapper, userId, tokenHash, expiresAt, now);
+            String sql = """
+                    INSERT INTO auth_refresh_tokens (user_id, token_hash, expires_at, created_at)
+                    VALUES (?, ?, ?, ?)
+                    RETURNING id, user_id, token_hash, expires_at, revoked_at, created_at
+                    """;
+
+            return jdbcTemplate.queryForObject(
+                    sql,
+                    rowMapper,
+                    userId,
+                    tokenHash,
+                    expiresAt,
+                    now);
+
+        } catch (Exception ex) {
+            // log lỗi gốc
+            System.err.println("DB ERROR in save refresh token: " + ex.getMessage());
+            ex.printStackTrace();
+
+            throw new RuntimeException("DATABASE_ERROR: cannot save refresh token", ex);
+        }
     }
 
     public Optional<RefreshToken> findByTokenHash(String tokenHash) {

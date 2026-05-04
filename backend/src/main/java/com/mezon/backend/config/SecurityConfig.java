@@ -1,9 +1,8 @@
 package com.mezon.backend.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mezon.backend.dto.ApiErrorResponse;
-import com.mezon.backend.security.JwtAuthenticationFilter;
-import jakarta.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,39 +21,51 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mezon.backend.dto.ApiErrorResponse;
+import com.mezon.backend.security.JwtAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties({JwtProperties.class, CorsProperties.class})
+@EnableConfigurationProperties({ JwtProperties.class, CorsProperties.class })
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtAuthenticationFilter jwtAuthenticationFilter,
-                                                   ObjectMapper objectMapper) throws Exception {
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            ObjectMapper objectMapper) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/login",
                                 "/api/auth/signup",
                                 "/api/auth/refresh",
                                 "/api/auth/logout",
-                                "/api/users").permitAll()
+                                "/api/users")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/subjects").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, authException) ->
-                                writeError(response, objectMapper, HttpServletResponse.SC_UNAUTHORIZED,
-                                        "Bạn cần đăng nhập để tiếp tục"))
-                        .accessDeniedHandler((request, response, accessDeniedException) ->
-                                writeError(response, objectMapper, HttpServletResponse.SC_FORBIDDEN,
+                        .authenticationEntryPoint((request, response,
+                                authException) -> {
+
+                            writeError(response, objectMapper,
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    "Something wrong !!");
+
+                        })
+                        .accessDeniedHandler((request, response,
+                                accessDeniedException) -> writeError(response,
+                                        objectMapper,
+                                        HttpServletResponse.SC_FORBIDDEN,
                                         "Bạn không có quyền thực hiện thao tác này")))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -64,6 +75,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 
     @Bean
@@ -81,9 +97,9 @@ public class SecurityConfig {
     }
 
     private void writeError(HttpServletResponse response,
-                            ObjectMapper objectMapper,
-                            int status,
-                            String message) throws java.io.IOException {
+            ObjectMapper objectMapper,
+            int status,
+            String message) throws java.io.IOException {
         response.setStatus(status);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

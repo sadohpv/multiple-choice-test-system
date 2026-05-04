@@ -36,8 +36,7 @@ export function AuthLayout() {
                                                 ? "bg-white text-zinc-950 shadow-sm"
                                                 : "text-zinc-500 hover:text-zinc-950",
                                         )}
-                                        to={tab.href}
-                                    >
+                                        to={tab.href}>
                                         {tab.label}
                                     </Link>
                                 );

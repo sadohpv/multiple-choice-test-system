@@ -4,6 +4,7 @@ import { AuthLayout } from "./layouts/AuthLayout";
 import { publicRoutes } from "./routes";
 import { MainLayout } from "./layouts/MainLayout";
 import { SubjectPage } from "./features/subjects/pages/SubjectPage";
+import { ApiProvider } from "./lib/Context/ContextApi";
 
 function App() {
     return (
@@ -15,9 +16,17 @@ function App() {
                         <Route key={route.path} path={route.path} element={<route.component />} />
                     ))}
                 </Route>
-                <Route path="/main" element={<MainLayout />}>
-                    <Route path="subject" element={<SubjectPage />}></Route>
+
+                <Route
+                    path="/main"
+                    element={
+                        <ApiProvider>
+                            <MainLayout />
+                        </ApiProvider>
+                    }>
+                    <Route path="subject" element={<SubjectPage />} />
                 </Route>
+
                 <Route path="*" element={<Navigate replace to={AUTH_PATHS.login} />} />
             </Routes>
         </BrowserRouter>

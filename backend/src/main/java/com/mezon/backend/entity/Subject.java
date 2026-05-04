@@ -7,7 +7,8 @@ public class Subject {
     private Long createdAt;
 
     // Constructor không tham số
-    public Subject() {}
+    public Subject() {
+    }
 
     // Các hàm Setter thực thụ để JDBC đổ data vào
     public void setId(Long id) {
@@ -18,13 +19,27 @@ public class Subject {
         this.name = subjectName;
     }
 
-	public void setSubjectSlug(String subjectSlug) {
+    public void setSubjectSlug(String subjectSlug) {
         this.slug = subjectSlug;
     }
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
     }
-    
-    public String getSubjectName() { return name; }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getSubjectName() {
+        return name;
+    }
 }

@@ -21,6 +21,8 @@ public class SubjectController {
 
     @GetMapping
     public List<Subject> getAllSubjects() {
-        return subjectRepository.findAll();
+        List<Subject> result = subjectRepository.findAll();
+        System.out.println(result);
+        return result;
     }
 }

@@ -1,8 +1,8 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
-import { useAuth } from "@/features/auth/context/useAuth";
 import { cn } from "@/lib/utils";
+import { useApi } from "@/lib/Context/useAPI";
 
 const navItems = [
     { href: APP_PATHS.home, label: "Home" },
@@ -13,11 +13,11 @@ const navItems = [
 
 export function MainLayout() {
     const navigate = useNavigate();
-    const { isAuthenticated, logout, user } = useAuth();
+    const api = useApi();
 
     const handleLogout = async () => {
         try {
-            await logout();
+            await api.logout();
         } finally {
             navigate(APP_PATHS.home, { replace: true });
         }
@@ -49,7 +49,7 @@ export function MainLayout() {
                     </nav>
 
                     <div className="flex items-center gap-3">
-                        {isAuthenticated ? (
+                        {/* {isAuthenticated ? (
                             <>
                                 <span className="hidden max-w-40 truncate text-sm text-zinc-500 sm:inline">
                                     {user?.displayname || user?.username}
@@ -58,11 +58,11 @@ export function MainLayout() {
                                     Logout
                                 </Button>
                             </>
-                        ) : (
-                            <Button asChild>
-                                <Link to={AUTH_PATHS.login}>Login</Link>
-                            </Button>
-                        )}
+                        ) : ( */}
+                        <Button asChild>
+                            <Link to={AUTH_PATHS.login}>Login</Link>
+                        </Button>
+                        {/* )} */}
                     </div>
                 </div>
             </header>

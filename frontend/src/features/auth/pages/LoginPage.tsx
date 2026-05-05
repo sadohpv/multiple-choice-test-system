@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/Button";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
-import { useAuth } from "../context/useAuth";
 import type { FormStatus, LoginFormValues } from "../types";
 import { validateLogin } from "../utils/validation";
+import { useApi } from "@/lib/Context/useAPI";
 
 const initialValues: LoginFormValues = {
     identity: "",
@@ -22,7 +22,7 @@ const idleStatus: FormStatus = {
 export function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login } = useAuth();
+    const { login } = useApi();
     const [values, setValues] = useState<LoginFormValues>(initialValues);
     const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
     const [status, setStatus] = useState<FormStatus>(idleStatus);

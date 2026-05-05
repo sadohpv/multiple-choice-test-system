@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useMemo } from "react";
 import { axiosInstance } from "../../services/axiosInstance";
-
+import type { AuthSession, AuthUser, LoginFormValues, RegisterFormValues } from "@/features/auth/types";
+import { register, login, getCurrentUser, logout } from "../../features/auth/api/auth";
 type ApiContextType = {
     get: <T = any>(url: string, config?: any) => Promise<T>;
     post: <T = any>(url: string, data?: any, config?: any) => Promise<T>;
     put: <T = any>(url: string, data?: any, config?: any) => Promise<T>;
     del: <T = any>(url: string, config?: any) => Promise<T>;
+    register: (values: RegisterFormValues) => Promise<AuthSession>;
+    refreshUser: () => Promise<AuthUser>;
+    login: (values: LoginFormValues) => Promise<AuthSession>;
+    logout: () => Promise<void>;
 };
 
 const ApiContext = createContext<ApiContextType | null>(null);
@@ -32,6 +37,21 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
             del: async <T,>(url: string, config?: any): Promise<T> => {
                 const res = await axiosInstance.delete<T>(url, config);
                 return res.data;
+            },
+            register: async (values: RegisterFormValues) => {
+                const nextSession = await register(values);
+                return nextSession;
+            },
+            login: async (values: LoginFormValues) => {
+                const nextSession = await login(values);
+                return nextSession;
+            },
+            refreshUser: async () => {
+                const user = await getCurrentUser();
+                return user;
+            },
+            logout: async () => {
+                await logout();
             },
         }),
         [],

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
-import { useAuth } from "../context/useAuth";
+import { useAuth } from "@/lib/Context/useAPI";
 
 type RouteGuardProps = {
     children: ReactNode;

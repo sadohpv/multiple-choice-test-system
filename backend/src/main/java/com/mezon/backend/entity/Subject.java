@@ -1,5 +1,10 @@
 package com.mezon.backend.entity;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Subject {
     private Long id;
     private String slug;
@@ -8,6 +13,13 @@ public class Subject {
 
     // Constructor không tham số
     public Subject() {
+    }
+
+    public Subject(ResultSet rs) throws SQLException { // Check ResultSet có value
+        this.id = rs.getObject("id", Long.class);
+        this.slug = rs.getString("slug");
+        this.name = rs.getString("name");
+        this.createdAt = rs.getObject("createdAt", Long.class);
     }
 
     // Các hàm Setter thực thụ để JDBC đổ data vào
@@ -41,5 +53,10 @@ public class Subject {
 
     public String getSubjectName() {
         return name;
+    }
+
+    @JsonProperty("nameSlug")
+    public String getSubjectName1() {
+        return name + slug;
     }
 }

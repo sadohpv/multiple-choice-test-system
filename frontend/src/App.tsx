@@ -11,15 +11,18 @@ import { publicRoutes } from "./routes";
 import { MainLayout } from "./layouts/MainLayout";
 import { ApiProvider } from "./lib/Context/ContextApi";
 import { AuthLayout } from "./layouts/AuthLayout";
+import { AuthProvider } from "./lib/Context/ContextAuth";
 
 function App() {
     const router = createBrowserRouter([
         {
             element: (
                 <ApiProvider>
-                    <ProtectedRoute>
-                        <MainLayout />
-                    </ProtectedRoute>
+                    <AuthProvider>
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                    </AuthProvider>
                 </ApiProvider>
             ),
             // loader: appLoader,
@@ -52,9 +55,11 @@ function App() {
         },
         {
             element: (
-                <GuestRoute>
-                    <AuthLayout />
-                </GuestRoute>
+                <ApiProvider>
+                    <GuestRoute>
+                        <AuthLayout />
+                    </GuestRoute>
+                </ApiProvider>
             ),
             children: publicRoutes.map(r => ({
                 path: r.path,

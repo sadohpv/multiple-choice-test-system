@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/Button";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
-import { useAuth } from "../context/useAuth";
 import type { FieldErrors, FormStatus, RegisterFormValues } from "../types";
 import { validateRegister } from "../utils/validation";
+import { useApi } from "@/lib/Context/useAPI";
 
 const initialValues: RegisterFormValues = {
     username: "",
@@ -23,16 +23,13 @@ const idleStatus: FormStatus = {
 
 export function RegisterPage() {
     const navigate = useNavigate();
-    const { register } = useAuth();
+    const { register } = useApi();
     const [values, setValues] = useState<RegisterFormValues>(initialValues);
     const [errors, setErrors] = useState<FieldErrors<RegisterFormValues>>({});
     const [status, setStatus] = useState<FormStatus>(idleStatus);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleChange = <K extends keyof RegisterFormValues>(
-        field: K,
-        nextValue: RegisterFormValues[K],
-    ) => {
+    const handleChange = <K extends keyof RegisterFormValues>(field: K, nextValue: RegisterFormValues[K]) => {
         setValues(current => ({
             ...current,
             [field]: nextValue,

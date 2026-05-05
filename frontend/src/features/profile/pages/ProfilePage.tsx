@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
-import { useAuth } from "@/features/auth/context/useAuth";
 import type { AuthUser } from "@/features/auth/types";
+import { useApi, useAuth } from "@/lib/Context/useAPI";
 
 export function ProfilePage() {
-    const { refreshUser, user } = useAuth();
+    const { refreshUser } = useApi();
+    const { user } = useAuth();
     const [profile, setProfile] = useState<AuthUser | null>(user);
     const [error, setError] = useState("");
 
@@ -35,7 +36,11 @@ export function ProfilePage() {
                 <p className="mt-2 text-sm text-zinc-500">Thông tin tài khoản đang đăng nhập.</p>
             </div>
 
-            {error ? <Alert className="mt-6 max-w-2xl" tone="error">{error}</Alert> : null}
+            {error ? (
+                <Alert className="mt-6 max-w-2xl" tone="error">
+                    {error}
+                </Alert>
+            ) : null}
 
             <section className="mt-6 max-w-2xl rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
                 <dl className="grid gap-4 sm:grid-cols-2">

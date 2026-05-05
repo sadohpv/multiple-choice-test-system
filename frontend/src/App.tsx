@@ -25,10 +25,6 @@ function App() {
             // loader: appLoader,
             children: [
                 {
-                    index: true,
-                    element: <HomePage />,
-                },
-                {
                     path: APP_PATHS.practice,
                     element: <PracticePage />,
                 },
@@ -50,7 +46,10 @@ function App() {
                 },
             ],
         },
-
+        {
+            index: true,
+            element: <HomePage />,
+        },
         {
             element: (
                 <GuestRoute>

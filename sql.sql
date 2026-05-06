@@ -85,6 +85,7 @@ CREATE TABLE public."Roles" (
     id bigint NOT NULL,
     role_name character varying(50) NOT NULL,
     description character varying(50),
+    roleLevel integer,
     "createdAt" bigint,
     "updatedAt" bigint
 );
@@ -241,7 +242,7 @@ COPY public."Questions" (id, description, "createdAt", "updatedAt", difficult, s
 -- Data for Name: Roles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Roles" (id, role_name, description, "createdAt", "updatedAt") FROM stdin;
+COPY public."Roles" (id, role_name,roleLevel, description, "createdAt", "updatedAt") FROM stdin;
 \.
 
 

@@ -89,3 +89,13 @@ export async function getCurrentUser() {
         throw new Error(resolveApiError(error, "Không thể tải thông tin tài khoản."));
     }
 }
+
+export async function googleLogin(idToken: string) {
+    try {
+        const response = await axiosInstance.post<AuthSession>("/auth/google", { idToken });
+        storeAuthSession(response.data);
+        return response.data;
+    } catch (error) {
+        throw new Error(resolveApiError(error, "Đăng nhập bằng Google không thành công."));
+    }
+}

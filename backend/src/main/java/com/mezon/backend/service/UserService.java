@@ -99,6 +99,39 @@ public class UserService {
         return userRepository.deleteById(id) > 0;
     }
 
+    public boolean updateDisplayname(Long id, String displayname) {
+        if (displayname == null || displayname.isBlank()) {
+            throw new IllegalArgumentException("Tên hiển thị là bắt buộc");
+        }
+        if (displayname.length() < 2 || displayname.length() > 100) {
+            throw new IllegalArgumentException("Tên hiển thị phải từ 2-100 ký tự");
+        }
+        return userRepository.updateDisplayname(id, displayname.trim()) > 0;
+    }
+
+    public void changePassword(Long id, String currentPassword, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
+
+        String storedPassword = user.password();
+        boolean matches = false;
+        if (isBcryptHash(storedPassword)) {
+            matches = passwordEncoder.matches(currentPassword, storedPassword);
+        } else {
+            matches = currentPassword.equals(storedPassword);
+        }
+
+        if (!matches) {
+            throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác");
+        }
+
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("Mật khẩu mới phải từ 8-100 ký tự");
+        }
+
+        userRepository.updatePassword(id, passwordEncoder.encode(newPassword));
+    }
+
     private UserCreateRequest normalize(UserCreateRequest req) {
         return new UserCreateRequest(
                 req.username() == null ? null : req.username().trim(),

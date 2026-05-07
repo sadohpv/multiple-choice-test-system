@@ -2,18 +2,24 @@ package com.mezon.backend.controller;
 
 import com.mezon.backend.dto.AuthMessageResponse;
 import com.mezon.backend.dto.AuthResponse;
+import com.mezon.backend.dto.ChangePasswordRequest;
+import com.mezon.backend.dto.GoogleLoginRequest;
 import com.mezon.backend.dto.LoginRequest;
 import com.mezon.backend.dto.LogoutRequest;
 import com.mezon.backend.dto.RefreshTokenRequest;
+import com.mezon.backend.dto.UpdateProfileRequest;
 import com.mezon.backend.dto.UserCreateRequest;
 import com.mezon.backend.dto.UserResponse;
 import com.mezon.backend.security.AuthenticatedUserPrincipal;
 import com.mezon.backend.service.AuthService;
+import com.mezon.backend.service.GoogleAuthService;
+import com.mezon.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +29,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final GoogleAuthService googleAuthService;
+    private final UserService userService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, GoogleAuthService googleAuthService, UserService userService) {
         this.authService = authService;
+        this.googleAuthService = googleAuthService;
+        this.userService = userService;
     }
 
     @PostMapping("/signup")
@@ -52,5 +62,26 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> currentUser(@AuthenticationPrincipal AuthenticatedUserPrincipal principal) {
         return ResponseEntity.ok(authService.currentUser(principal.id()));
+    }
+
+    @PutMapping("/me/profile")
+    public ResponseEntity<AuthMessageResponse> updateProfile(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal principal,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        userService.updateDisplayname(principal.id(), request.displayname());
+        return ResponseEntity.ok(new AuthMessageResponse("Cập nhật thành công"));
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<AuthMessageResponse> changePassword(
+            @AuthenticationPrincipal AuthenticatedUserPrincipal principal,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(principal.id(), request.currentPassword(), request.newPassword());
+        return ResponseEntity.ok(new AuthMessageResponse("Đổi mật khẩu thành công"));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
+        return ResponseEntity.ok(googleAuthService.loginWithGoogle(request.idToken()));
     }
 }

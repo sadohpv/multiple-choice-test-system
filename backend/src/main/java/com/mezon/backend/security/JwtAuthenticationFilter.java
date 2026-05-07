@@ -27,8 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
-        System.out.println("JwtAuthenticationFilter CREATED");
-
     }
 
     @Override
@@ -36,12 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        System.out.println("Hello" + authorization);
         if (authorization != null
                 && authorization.startsWith(BEARER_PREFIX)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = authorization.substring(BEARER_PREFIX.length()).trim();
-            System.out.println("token" + token);
             jwtService.parseAccessToken(token).ifPresent(claims -> authenticate(request, claims));
         }
 
@@ -54,10 +50,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 claims.username(),
                 claims.email());
 
+        // Map role names from JWT to Spring Security authorities
+        List<SimpleGrantedAuthority> authorities = claims.roles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                .toList();
+
+        // Default to ROLE_USER if no roles assigned
+        if (authorities.isEmpty()) {
+            authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 principal,
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                authorities);
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

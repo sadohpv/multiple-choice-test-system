@@ -93,6 +93,11 @@ public class UserRepository {
         return jdbcTemplate.update(sql, id);
     }
 
+    public int updateDisplayname(Long id, String displayname) {
+        String sql = "UPDATE \"Users\" SET displayname = ?, \"updatedAt\" = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, displayname, Instant.now().toEpochMilli(), id);
+    }
+
     public boolean existsByUsername(String username) {
         String sql = "SELECT COUNT(id) FROM \"Users\" WHERE username = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, username);

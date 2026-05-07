@@ -20,4 +20,15 @@ public class SubjectRepository {
 			return subject;
 		});
 	}
+
+	public Subject createSubject(Subject subject) {
+		// Sử dụng RETURNING * để lấy lại tất cả các cột sau khi insert thành công
+		String sql = "INSERT INTO \"Subject\" (slug, name, \"createdAt\") " +
+				"VALUES (?, ?, ?) " +
+				"RETURNING *";
+
+		return jdbcTemplate.queryForObject(
+				sql,
+				(rs, rowNum) -> new Subject(rs));
+	}
 }

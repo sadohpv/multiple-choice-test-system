@@ -42,21 +42,25 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response,
-                                authException) -> {
-
-                            writeError(response, objectMapper,
-                                    HttpServletResponse.SC_UNAUTHORIZED,
-                                    "AUTH_REQUIRED_NEW_CONFIG");
-
-                        })
-                        .accessDeniedHandler((request, response,
-                                accessDeniedException) -> writeError(response,
-                                        objectMapper,
-                                        HttpServletResponse.SC_FORBIDDEN,
-                                        "Bạn không có quyền thực hiện thao tác này")))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/login",
+                                "/api/auth/signup",
+                                "/api/auth/logout")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/subjects").permitAll()
+                        .anyRequest().authenticated())
+                // .exceptionHandling(exceptions -> exceptions
+                // .authenticationEntryPoint((request, response, authException) -> {
+                // writeError(response, objectMapper,
+                // HttpServletResponse.SC_UNAUTHORIZED,
+                // "AUTH_REQUIRED");
+                // })
+                // .accessDeniedHandler((request, response, accessDeniedException) -> {
+                // writeError(response, objectMapper,
+                // HttpServletResponse.SC_FORBIDDEN,
+                // "FORBIDDEN");
+                // }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

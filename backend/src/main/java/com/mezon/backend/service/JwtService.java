@@ -1,14 +1,5 @@
 package com.mezon.backend.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mezon.backend.config.JwtProperties;
-import com.mezon.backend.entity.User;
-import com.mezon.backend.security.JwtClaims;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -19,6 +10,17 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mezon.backend.config.JwtProperties;
+import com.mezon.backend.entity.User;
+import com.mezon.backend.security.JwtClaims;
 
 @Service
 public class JwtService {
@@ -64,6 +66,8 @@ public class JwtService {
         try {
             String[] parts = token.split("\\.");
             if (parts.length != 3) {
+                System.out.println("3");
+
                 return Optional.empty();
             }
 
@@ -72,24 +76,33 @@ public class JwtService {
             if (!MessageDigest.isEqual(
                     expectedSignature.getBytes(StandardCharsets.US_ASCII),
                     parts[2].getBytes(StandardCharsets.US_ASCII))) {
+                System.out.println("4");
+
                 return Optional.empty();
             }
 
             Map<String, Object> claims = objectMapper.readValue(decode(parts[1]), CLAIMS_TYPE);
             if (!ACCESS_TOKEN_TYPE.equals(claims.get("type"))) {
+                System.out.println("5");
                 return Optional.empty();
             }
 
             long expiresAt = asLong(claims.get("exp"));
-            if (expiresAt <= Instant.now(clock).getEpochSecond()) {
-                return Optional.empty();
-            }
+            // if (expiresAt <= Instant.now(clock).getEpochSecond()) {
+            //     System.out.println("2");
 
-            return Optional.of(new JwtClaims(
+            //     return Optional.empty();
+            // }
+            System.out.println("Excurte");
+
+            Optional<JwtClaims> claimt = Optional.of((new JwtClaims(
                     Long.valueOf(requiredString(claims.get("sub"))),
                     requiredString(claims.get("username")),
                     requiredString(claims.get("email")),
-                    expiresAt));
+                    expiresAt)));
+            System.out.println("++++++++++++++++++++ " + claimt);
+
+            return claimt;
         } catch (Exception ex) {
             return Optional.empty();
         }

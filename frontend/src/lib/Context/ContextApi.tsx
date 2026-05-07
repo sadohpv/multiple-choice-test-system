@@ -3,6 +3,7 @@ import React, { createContext, useMemo } from "react";
 import { axiosInstance } from "../../services/axiosInstance";
 import type { AuthSession, AuthUser, LoginFormValues, RegisterFormValues } from "@/features/auth/types";
 import { register, login, getCurrentUser, logout } from "../../features/auth/api/auth";
+import type { SubjectEntity } from "@/constants/entity";
 type ApiContextType = {
     get: <T = any>(url: string, config?: any) => Promise<T>;
     post: <T = any>(url: string, data?: any, config?: any) => Promise<T>;
@@ -12,6 +13,7 @@ type ApiContextType = {
     refreshUser: () => Promise<AuthUser>;
     login: (values: LoginFormValues) => Promise<AuthSession>;
     logout: () => Promise<void>;
+    fetchAllSubject: () => Promise<SubjectEntity[]>;
 };
 
 const ApiContext = createContext<ApiContextType | null>(null);
@@ -52,6 +54,11 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
             },
             logout: async () => {
                 await logout();
+            },
+            fetchAllSubject: async () => {
+                const res: SubjectEntity[] = await axiosInstance.get("/subjects");
+                console.log("res: ", res);
+                return res;
             },
         }),
         [],

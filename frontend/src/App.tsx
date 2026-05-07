@@ -12,6 +12,7 @@ import { MainLayout } from "./layouts/MainLayout";
 import { ApiProvider } from "./lib/Context/ContextApi";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { AuthProvider } from "./lib/Context/ContextAuth";
+import { practiceLoader } from "./lib/loaders/practiceLoader";
 
 function App() {
     const router = createBrowserRouter([
@@ -28,6 +29,7 @@ function App() {
             // loader: appLoader,
             children: [
                 {
+                    loader: practiceLoader,
                     path: APP_PATHS.practice,
                     element: <PracticePage />,
                 },

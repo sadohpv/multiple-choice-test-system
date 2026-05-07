@@ -5,9 +5,9 @@ export const AUTH_PATHS = {
 
 export const APP_PATHS = {
     home: "/",
-    practice: "thi-thu",
-    history: "lich-su",
-    results: "ket-qua",
-    contribute: "dong-gop-cau-hoi",
+    practice: "practice",
+    history: "history",
+    results: "results",
+    contribute: "contribute",
     profile: "profile",
 } as const;

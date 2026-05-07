@@ -2,7 +2,9 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
-import { useApi } from "@/lib/Context/useAPI";
+import { useApi, useAuth } from "@/lib/Context/useAPI";
+import { useEffect, useState } from "react";
+import { axiosInstance } from "@/services/axiosInstance";
 
 const navItems = [
     { href: APP_PATHS.home, label: "Home" },
@@ -14,6 +16,18 @@ const navItems = [
 export function MainLayout() {
     const navigate = useNavigate();
     const api = useApi();
+    const { isAuthenticated, user } = useAuth();
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        if (isAuthenticated && user) {
+            axiosInstance.get(`/roles/max-role-level/${user.id}`)
+                .then(res => setIsAdmin(res.data >= 50))
+                .catch(() => setIsAdmin(false));
+        } else {
+            setIsAdmin(false);
+        }
+    }, [isAuthenticated, user]);
 
     const handleLogout = async () => {
         try {
@@ -24,53 +38,80 @@ export function MainLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-50 text-zinc-950">
-            <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 backdrop-blur">
-                <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-                    <Link className="text-lg font-semibold text-zinc-950" to={APP_PATHS.home}>
+        <div className="min-h-screen bg-[#f8f8f8] text-neutral-900">
+            {/* Header */}
+            <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 backdrop-blur-md">
+                <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
+                    {/* Logo */}
+                    <Link
+                        to={APP_PATHS.home}
+                        className="flex items-center gap-2 text-sm font-semibold tracking-tight text-neutral-900 hover:text-indigo-600 transition-colors"
+                    >
+                        <span className="inline-flex size-6 items-center justify-center rounded-md bg-indigo-600 text-xs font-bold text-white">M</span>
                         Mezon Exam
                     </Link>
 
-                    <nav className="flex flex-wrap items-center gap-1" aria-label="Điều hướng chính">
-                        {navItems.map(item => (
+                    {/* Nav */}
+                    <nav className="hidden items-center gap-0.5 sm:flex" aria-label="Điều hướng chính">
+                        {navItems.map(item => {
+                            if (item.href === APP_PATHS.profile && !isAuthenticated) return null;
+                            return (
+                                <NavLink
+                                    key={item.href}
+                                    end={item.href === APP_PATHS.home}
+                                    to={item.href}
+                                    className={({ isActive }) =>
+                                        cn(
+                                            "rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900",
+                                            isActive && "bg-neutral-100 text-neutral-900 font-medium"
+                                        )
+                                    }
+                                >
+                                    {item.label}
+                                </NavLink>
+                            );
+                        })}
+                        {isAdmin && (
                             <NavLink
-                                key={item.href}
+                                key="/admin"
+                                to="/admin"
                                 className={({ isActive }) =>
                                     cn(
-                                        "rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950",
-                                        isActive && "bg-zinc-100 text-zinc-950",
+                                        "rounded-md px-3 py-1.5 text-sm font-medium text-indigo-600 transition-colors hover:bg-indigo-50",
+                                        isActive && "bg-indigo-50"
                                     )
                                 }
-                                end={item.href === APP_PATHS.home}
-                                to={item.href}>
-                                {item.label}
+                            >
+                                Admin
                             </NavLink>
-                        ))}
+                        )}
                     </nav>
 
-                    <div className="flex items-center gap-3">
-                        {/* {isAuthenticated ? (
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                        {isAuthenticated ? (
                             <>
-                                <span className="hidden max-w-40 truncate text-sm text-zinc-500 sm:inline">
+                                <span className="hidden max-w-32 truncate text-xs text-neutral-400 sm:inline">
                                     {user?.displayname || user?.username}
                                 </span>
-                                <Button onClick={handleLogout} variant="outline">
-                                    Logout
+                                <Button onClick={handleLogout} variant="outline" size="sm">
+                                    Đăng xuất
                                 </Button>
                             </>
-                        ) : ( */}
-                        <Button asChild>
-                            <Link to={AUTH_PATHS.login}>Login</Link>
-                        </Button>
-                        {/* )} */}
+                        ) : (
+                            <Button asChild size="sm" variant="accent">
+                                <Link to={AUTH_PATHS.login}>Đăng nhập</Link>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </header>
 
             <Outlet />
 
-            <footer className="border-t border-zinc-200 bg-white">
-                <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            {/* Footer */}
+            <footer className="border-t border-neutral-200 bg-white">
+                <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 text-xs text-neutral-400">
                     <span>© 2026 Mezon Exam</span>
                     <span>Học tập rõ ràng, kết quả minh bạch.</span>
                 </div>

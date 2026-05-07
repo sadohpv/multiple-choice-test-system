@@ -1,7 +1,5 @@
 package com.mezon.backend.entity;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +14,5 @@ public class Role {
     private Integer roleLevel;
     private Long createdAt;
     private Long updatedAt;
-    private List<Permission> permissions; // WAIT FOR UPGRADE
+    // private List<Permission> permissions; // WAIT FOR UPGRADE
 }
-

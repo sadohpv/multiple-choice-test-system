@@ -7,7 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -42,7 +44,7 @@ public class JwtService {
         this.signingKey = jwtProperties.secret().getBytes(StandardCharsets.UTF_8);
     }
 
-    public String createAccessToken(User user) {
+    public String createAccessToken(User user, List<String> roles) {
         Instant now = Instant.now(clock);
         Instant expiresAt = now.plusMillis(jwtProperties.accessTokenExpirationMs());
 
@@ -55,6 +57,7 @@ public class JwtService {
         payload.put("username", user.username());
         payload.put("email", user.email());
         payload.put("type", ACCESS_TOKEN_TYPE);
+        payload.put("roles", roles);
         payload.put("iat", now.getEpochSecond());
         payload.put("exp", expiresAt.getEpochSecond());
 
@@ -66,8 +69,6 @@ public class JwtService {
         try {
             String[] parts = token.split("\\.");
             if (parts.length != 3) {
-                System.out.println("3");
-
                 return Optional.empty();
             }
 
@@ -76,33 +77,30 @@ public class JwtService {
             if (!MessageDigest.isEqual(
                     expectedSignature.getBytes(StandardCharsets.US_ASCII),
                     parts[2].getBytes(StandardCharsets.US_ASCII))) {
-                System.out.println("4");
-
                 return Optional.empty();
             }
 
             Map<String, Object> claims = objectMapper.readValue(decode(parts[1]), CLAIMS_TYPE);
             if (!ACCESS_TOKEN_TYPE.equals(claims.get("type"))) {
-                System.out.println("5");
                 return Optional.empty();
             }
 
             long expiresAt = asLong(claims.get("exp"));
-            // if (expiresAt <= Instant.now(clock).getEpochSecond()) {
-            //     System.out.println("2");
+            if (expiresAt <= Instant.now(clock).getEpochSecond()) {
+                return Optional.empty();
+            }
 
-            //     return Optional.empty();
-            // }
-            System.out.println("Excurte");
+            @SuppressWarnings("unchecked")
+            List<String> roles = claims.get("roles") instanceof List<?> rawList
+                    ? (List<String>) rawList
+                    : Collections.emptyList();
 
-            Optional<JwtClaims> claimt = Optional.of((new JwtClaims(
+            return Optional.of(new JwtClaims(
                     Long.valueOf(requiredString(claims.get("sub"))),
                     requiredString(claims.get("username")),
                     requiredString(claims.get("email")),
-                    expiresAt)));
-            System.out.println("++++++++++++++++++++ " + claimt);
-
-            return claimt;
+                    expiresAt,
+                    roles));
         } catch (Exception ex) {
             return Optional.empty();
         }

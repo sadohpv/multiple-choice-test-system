@@ -2,7 +2,6 @@ package com.mezon.backend.repository;
 
 import com.mezon.backend.entity.Role;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -29,26 +28,13 @@ public class RoleRepository {
         });
     }
     public int getMaxRoleLevelByUserId(Long userId) {
-        String snakeCaseSql = """
-                SELECT COALESCE(MAX(r.role_level), 0)
+        String sql = """
+                SELECT COALESCE(MAX(ur.max_role_level), 0)
                 FROM "Users_Roles" ur
-                JOIN "Roles" r ON r.id = ur.role_id
                 WHERE ur.user_id = ?
                 """;
-
-        try {
-            Integer roleLevel = jdbcTemplate.queryForObject(snakeCaseSql, Integer.class, userId);
-            return roleLevel != null ? roleLevel : 0;
-        } catch (DataAccessException ignored) {
-            String camelCaseSql = """
-                    SELECT COALESCE(MAX(r.role_level), 0)
-                    FROM "Users_Roles" ur
-                    JOIN "Roles" r ON r.id = ur."roleId"
-                    WHERE ur."userId" = ?
-                    """;
-            Integer roleLevel = jdbcTemplate.queryForObject(camelCaseSql, Integer.class, userId);
-            return roleLevel != null ? roleLevel : 0;
-        }
+        Integer roleLevel = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        return roleLevel != null ? roleLevel : 0;
     }
     // READ: Lấy theo ID
     public Optional<Role> findById(Long id) {

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RoleService {
+    private static final int DEFAULT_CREATE_REQUIRED_LEVEL = 50;
     private final RoleRepository roleRepository;
 
     public RoleService(RoleRepository roleRepository) {
@@ -13,6 +14,25 @@ public class RoleService {
 
     public int getMaxRoleLevel(Long userId) {
         return roleRepository.getMaxRoleLevelByUserId(userId);
+    }
+
+    public boolean checkCanCreate(Long userId) {
+        return checkCanCreate(userId, DEFAULT_CREATE_REQUIRED_LEVEL);
+    }
+
+    public boolean checkCanCreate(Long userId, int requiredRoleLevel) {
+        return getMaxRoleLevel(userId) >= requiredRoleLevel;
+    }
+
+    public void ensureCanCreate(Long userId, String resourceName) {
+        ensureCanCreate(userId, DEFAULT_CREATE_REQUIRED_LEVEL, resourceName);
+    }
+
+    public void ensureCanCreate(Long userId, int requiredRoleLevel, String resourceName) {
+        if (!checkCanCreate(userId, requiredRoleLevel)) {
+            throw new IllegalArgumentException(
+                    "Bạn không có quyền tạo " + resourceName + ". Yêu cầu role level >= " + requiredRoleLevel);
+        }
     }
 
 }

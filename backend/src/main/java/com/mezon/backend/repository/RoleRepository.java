@@ -36,6 +36,24 @@ public class RoleRepository {
         Integer roleLevel = jdbcTemplate.queryForObject(sql, Integer.class, userId);
         return roleLevel != null ? roleLevel : 0;
     }
+
+    public List<Role> findRolesByUserId(Long userId) {
+        String sql = """
+                SELECT r.* FROM "Roles" r
+                JOIN "Users_Roles" ur ON r.id = ur.role_id
+                WHERE ur.user_id = ?
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Role role = new Role();
+            role.setId(rs.getLong("id"));
+            role.setRoleName(rs.getString("role_name"));
+            role.setDescription(rs.getString("description"));
+            role.setRoleLevel(rs.getInt("role_level"));
+            role.setCreatedAt(rs.getLong("createdAt"));
+            role.setUpdatedAt(rs.getLong("updatedAt"));
+            return role;
+        }, userId);
+    }
     // READ: Lấy theo ID
     public Optional<Role> findById(Long id) {
         String sqlRole = "SELECT * FROM \"Roles\" WHERE id = ?";
@@ -84,6 +102,20 @@ public class RoleRepository {
     public int deleteById(Long id) {
         String sql = "DELETE FROM \"Roles\" WHERE id = ?";
         return jdbcTemplate.update(sql, id);
+    }
+
+    // ASSIGN ROLES TO USER
+    public void assignRolesToUser(Long userId, List<Long> roleIds) {
+        String deleteSql = "DELETE FROM \"Users_Roles\" WHERE user_id = ?";
+        jdbcTemplate.update(deleteSql, userId);
+
+        if (roleIds != null && !roleIds.isEmpty()) {
+            String insertSql = "INSERT INTO \"Users_Roles\" (user_id, role_id) VALUES (?, ?)";
+            List<Object[]> batchArgs = roleIds.stream()
+                    .map(roleId -> new Object[]{userId, roleId})
+                    .toList();
+            jdbcTemplate.batchUpdate(insertSql, batchArgs);
+        }
     }
 
 }

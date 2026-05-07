@@ -8,7 +8,10 @@ import com.mezon.backend.service.RoleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import com.mezon.backend.security.Auditable;
 
 import java.net.URI;
 import java.util.List;
@@ -26,12 +29,14 @@ public class RoleController {
 
     // GET: http://localhost:8080/api/roles
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }
 
     // GET BY ID: http://localhost:8080/api/roles/1
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
     public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
         return roleRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -39,12 +44,15 @@ public class RoleController {
     }
 
     @GetMapping("/max-role-level/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
     public ResponseEntity<Integer> getMaxRoleLevelByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(roleService.getMaxRoleLevel(userId));
     }
 
     // POST: http://localhost:8080/api/roles
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Auditable(action = "CREATE_ROLE")
     public ResponseEntity<Role> createRole(@Valid @RequestBody RoleUpsertRequest request) {
         Role role = toRole(request);
         ensureRoleNameNotDuplicatedForCreate(role.getRoleName());
@@ -54,6 +62,8 @@ public class RoleController {
 
     // PUT: http://localhost:8080/api/roles/1
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Auditable(action = "UPDATE_ROLE")
     public ResponseEntity<Role> updateRole(@PathVariable Long id, @Valid @RequestBody RoleUpsertRequest request) {
         Role existingRole = roleRepository.findById(id).orElse(null);
         if (existingRole == null) {
@@ -71,6 +81,8 @@ public class RoleController {
 
     // DELETE: http://localhost:8080/api/roles/1
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Auditable(action = "DELETE_ROLE")
     public ResponseEntity<String> deleteRole(@PathVariable Long id) {
         Role existingRole = roleRepository.findById(id).orElse(null);
         if (existingRole == null) {

@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data // Sinh Getter Setter
-@NoArgsConstructor // Sinh contructor không có tham số VD : public Role()
-@AllArgsConstructor // Sinh contructor có tham số VD : public Role(id,name,desc......)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Role {
     private Long id;
     private String roleName;

@@ -42,24 +42,14 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/auth/login",
-                                "/api/auth/signup",
-                                "/api/auth/refresh",
-                                "/api/auth/logout",
-                                "/api/users")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/subjects").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint((request, response,
                                 authException) -> {
 
                             writeError(response, objectMapper,
                                     HttpServletResponse.SC_UNAUTHORIZED,
-                                    "Something wrong !!");
+                                    "AUTH_REQUIRED_NEW_CONFIG");
 
                         })
                         .accessDeniedHandler((request, response,

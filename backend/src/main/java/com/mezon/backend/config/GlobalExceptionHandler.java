@@ -3,6 +3,7 @@ package com.mezon.backend.config;
 import com.mezon.backend.dto.ApiErrorResponse;
 import com.mezon.backend.exception.DuplicateFieldException;
 import com.mezon.backend.exception.InvalidRefreshTokenException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -39,5 +40,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiErrorResponse> handleBadRequest(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ApiErrorResponse.of(ex.getMessage()));
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ApiErrorResponse> handleDatabase(DataAccessException ex) {
+        String rootMessage = ex.getMostSpecificCause() != null
+                ? ex.getMostSpecificCause().getMessage()
+                : ex.getMessage();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiErrorResponse.of("Loi du lieu CSDL: " + rootMessage));
     }
 }

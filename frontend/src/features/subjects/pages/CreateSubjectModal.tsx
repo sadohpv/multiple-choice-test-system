@@ -3,7 +3,7 @@ import { useState } from "react";
 interface CreateSubjectModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit;
+    onSubmit: (subject: { subjectName: string; slug: string; createdAt: number }) => void;
 }
 export default function CreateSubjectModal({ isOpen, onClose, onSubmit }: CreateSubjectModalProps) {
     const [subjectName, setSubjectName] = useState("");

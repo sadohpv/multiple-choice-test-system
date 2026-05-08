@@ -30,7 +30,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties({ JwtProperties.class, CorsProperties.class })
+@EnableConfigurationProperties({ JwtProperties.class, CorsProperties.class, GoogleProperties.class })
 public class SecurityConfig {
 
     @Bean
@@ -46,21 +46,22 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/login",
                                 "/api/auth/signup",
-                                "/api/auth/logout")
+                                "/api/auth/logout",
+                                "/api/auth/google")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/subjects").permitAll()
                         .anyRequest().authenticated())
-                // .exceptionHandling(exceptions -> exceptions
-                // .authenticationEntryPoint((request, response, authException) -> {
-                // writeError(response, objectMapper,
-                // HttpServletResponse.SC_UNAUTHORIZED,
-                // "AUTH_REQUIRED");
-                // })
-                // .accessDeniedHandler((request, response, accessDeniedException) -> {
-                // writeError(response, objectMapper,
-                // HttpServletResponse.SC_FORBIDDEN,
-                // "FORBIDDEN");
-                // }))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            writeError(response, objectMapper,
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    "AUTH_REQUIRED");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            writeError(response, objectMapper,
+                                    HttpServletResponse.SC_FORBIDDEN,
+                                    "FORBIDDEN");
+                        }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

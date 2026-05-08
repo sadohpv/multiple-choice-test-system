@@ -24,23 +24,23 @@ export function AuthField({
     const fieldId = id ?? name;
 
     return (
-        <label className={cn("flex flex-col gap-3", wrapperClassName)} htmlFor={fieldId}>
+        <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
             <Label htmlFor={fieldId}>{label}</Label>
             <Input
                 className={cn(
-                    error && "border-rose-300 focus:border-rose-500 focus-visible:ring-rose-100",
-                    className,
+                    error && "border-rose-400 focus:border-rose-400 focus:ring-rose-100",
+                    className
                 )}
                 id={fieldId}
                 name={name}
                 type={type}
                 {...props}
             />
-            {error || helperText ? (
-                <span className={cn("text-xs leading-5", error ? "text-rose-600" : "text-zinc-500")}>
+            {(error || helperText) && (
+                <span className={cn("text-xs", error ? "text-rose-600" : "text-neutral-400")}>
                     {error ?? helperText}
                 </span>
-            ) : null}
-        </label>
+            )}
+        </div>
     );
 }

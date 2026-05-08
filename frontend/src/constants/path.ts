@@ -1,6 +1,7 @@
 export const AUTH_PATHS = {
     login: "/login",
     register: "/register",
+    forgotPassword: "/forgot-password",
 } as const;
 
 export const APP_PATHS = {

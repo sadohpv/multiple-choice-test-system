@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
+import { GoogleLoginButton } from "../components/GoogleLoginButton";
 import type { FormStatus, LoginFormValues } from "../types";
 import { validateLogin } from "../utils/validation";
 import { useApi } from "@/lib/Context/useAPI";
@@ -61,10 +62,10 @@ export function LoginPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="space-y-1">
-                <h2 className="text-xl font-semibold text-zinc-950">Đăng nhập</h2>
-                <p className="text-sm text-zinc-500">Nhập thông tin tài khoản để tiếp tục.</p>
+        <div className="space-y-5">
+            <div>
+                <h2 className="text-base font-semibold text-neutral-900">Chào mừng trở lại</h2>
+                <p className="mt-0.5 text-sm text-neutral-400">Nhập thông tin để tiếp tục.</p>
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit} noValidate>
@@ -94,17 +95,37 @@ export function LoginPage() {
                             password: event.target.value,
                         }))
                     }
-                    placeholder="Nhập mật khẩu"
+                    placeholder="••••••••"
                     type="password"
                     value={values.password}
                 />
 
+                <div className="flex justify-end">
+                    <Link
+                        to={AUTH_PATHS.forgotPassword}
+                        className="text-xs font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                    >
+                        Quên mật khẩu?
+                    </Link>
+                </div>
+
                 <FormStatusAlert status={status} />
 
-                <div className="space-y-3 pt-2">
-                    <Button className="w-full" disabled={isSubmitting} size="lg" type="submit">
+                <div className="space-y-2.5">
+                    <Button className="w-full" disabled={isSubmitting} size="lg" type="submit" variant="accent">
                         {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
                     </Button>
+
+                    <div className="relative flex items-center">
+                        <div className="grow border-t border-neutral-200" />
+                        <span className="shrink-0 px-3 text-xs text-neutral-400">hoặc</span>
+                        <div className="grow border-t border-neutral-200" />
+                    </div>
+
+                    <GoogleLoginButton
+                        onSuccess={() => navigate(resolveRedirectPath(location.state), { replace: true })}
+                        onError={err => setStatus({ message: err.message, tone: "error" })}
+                    />
 
                     <Button asChild className="w-full" variant="ghost">
                         <Link to={AUTH_PATHS.register}>Chưa có tài khoản? Đăng ký</Link>

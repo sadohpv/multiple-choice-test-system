@@ -20,7 +20,6 @@ public class SubjectService {
 
 	public void checkPermissionBeforeAction(Long roleId) {
 		int level = roleService.getMaxRoleLevel(roleId);
-		System.out.println("User role level is: " + level);
 	}
 
 	public List<Subject> getAllSubject() {

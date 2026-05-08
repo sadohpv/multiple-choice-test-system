@@ -1,7 +1,10 @@
 package com.mezon.backend.service;
 
+import com.mezon.backend.entity.Role;
 import com.mezon.backend.repository.RoleRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class RoleService {
@@ -14,6 +17,14 @@ public class RoleService {
 
     public int getMaxRoleLevel(Long userId) {
         return roleRepository.getMaxRoleLevelByUserId(userId);
+    }
+
+    public List<Role> getRolesByUserId(Long userId) {
+        return roleRepository.findRolesByUserId(userId);
+    }
+
+    public void assignRolesToUser(Long userId, List<Long> roleIds) {
+        roleRepository.assignRolesToUser(userId, roleIds);
     }
 
     public boolean checkCanCreate(Long userId) {

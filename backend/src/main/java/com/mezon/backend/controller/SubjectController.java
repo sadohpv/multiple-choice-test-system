@@ -32,7 +32,6 @@ public class SubjectController {
     public Subject createSubject(
             @UserIdToken Long userId,
             @RequestBody Subject subject) {
-        System.out.print("SUBJECT" + subject.toString());
         return subjectService.createSubject(userId, subject);
     }
 }

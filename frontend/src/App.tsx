@@ -1,14 +1,6 @@
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-  Outlet,
-} from "react-router-dom"; // Nhớ import thêm Outlet
+import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom"; // Nhớ import thêm Outlet
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
-import {
-  GuestRoute,
-  ProtectedRoute,
-} from "@/features/auth/components/ProtectedRoute";
+import { GuestRoute, ProtectedRoute } from "@/features/auth/components/ProtectedRoute";
 import { HomePage } from "@/features/home/pages/HomePage";
 import { ProfilePage } from "@/features/profile/pages/ProfilePage";
 import { ContributeQuestionPage } from "@/features/user-flow/pages/ContributeQuestionPage";
@@ -25,107 +17,115 @@ import { AdminRoute } from "@/features/auth/components/AdminRoute";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { UserManagementPage } from "@/features/admin/pages/UserManagementPage";
 import { RoleManagementPage } from "@/features/admin/pages/RoleManagementPage";
+import { SubjectPage } from "./features/subjects/pages/SubjectPage";
+import { ModalProvider } from "react-modal-hook";
 
 function App() {
-  const router = createBrowserRouter([
-    {
-      element: (
-        <ApiProvider>
-          <AuthProvider>
-            <Outlet />
-          </AuthProvider>
-        </ApiProvider>
-      ),
-      children: [
-        // Home Page
+    const router = createBrowserRouter([
         {
-          index: true,
-          element: <HomePage />,
-        },
+            element: (
+                <ApiProvider>
+                    <AuthProvider>
+                        <ModalProvider>
+                            <Outlet />
+                        </ModalProvider>
+                    </AuthProvider>
+                </ApiProvider>
+            ),
+            children: [
+                // Home Page
+                {
+                    index: true,
+                    element: <HomePage />,
+                },
 
-        // Protected App Routes
-        {
-          element: (
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          ),
-          children: [
-            {
-              loader: practiceLoader,
-              path: APP_PATHS.practice,
-              element: <PracticePage />,
-            },
-            {
-              path: APP_PATHS.history,
-              element: <HistoryPage />,
-            },
-            {
-              path: APP_PATHS.results,
-              element: <ResultsPage />,
-            },
-            {
-              path: APP_PATHS.contribute,
-              element: <ContributeQuestionPage />,
-            },
-            {
-              path: APP_PATHS.profile,
-              element: <ProfilePage />,
-            },
-          ],
-        },
+                // Protected App Routes
+                {
+                    loader: practiceLoader,
+                    element: (
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                    ),
+                    children: [
+                        {
+                            path: APP_PATHS.practice,
+                            element: <PracticePage />,
+                        },
+                        {
+                            path: APP_PATHS.subject,
+                            element: <SubjectPage />,
+                        },
+                        {
+                            path: APP_PATHS.history,
+                            element: <HistoryPage />,
+                        },
+                        {
+                            path: APP_PATHS.results,
+                            element: <ResultsPage />,
+                        },
+                        {
+                            path: APP_PATHS.contribute,
+                            element: <ContributeQuestionPage />,
+                        },
+                        {
+                            path: APP_PATHS.profile,
+                            element: <ProfilePage />,
+                        },
+                    ],
+                },
 
-        // Admin Routes
-        {
-          path: "/admin",
-          element: (
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          ),
-          children: [
-            {
-              index: true,
-              element: (
-                <div className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-8 text-center">
-                  <p className="text-sm text-neutral-400">Chọn một mục ở menu bên trái để bắt đầu.</p>
-                </div>
-              ),
-            },
-            {
-              path: "users",
-              element: <UserManagementPage />,
-            },
-            {
-              path: "roles",
-              element: <RoleManagementPage />,
-            },
-          ],
-        },
+                // Admin Routes
+                {
+                    path: "/admin",
+                    element: (
+                        <AdminRoute>
+                            <AdminLayout />
+                        </AdminRoute>
+                    ),
+                    children: [
+                        {
+                            index: true,
+                            element: (
+                                <div className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-8 text-center">
+                                    <p className="text-sm text-neutral-400">Chọn một mục ở menu bên trái để bắt đầu.</p>
+                                </div>
+                            ),
+                        },
+                        {
+                            path: "users",
+                            element: <UserManagementPage />,
+                        },
+                        {
+                            path: "roles",
+                            element: <RoleManagementPage />,
+                        },
+                    ],
+                },
 
-        // Guest / Auth Routes
-        {
-          element: (
-            <GuestRoute>
-              <AuthLayout />
-            </GuestRoute>
-          ),
-          children: publicRoutes.map((r) => ({
-            path: r.path,
-            element: <r.component />,
-          })),
-        },
+                // Guest / Auth Routes
+                {
+                    element: (
+                        <GuestRoute>
+                            <AuthLayout />
+                        </GuestRoute>
+                    ),
+                    children: publicRoutes.map(r => ({
+                        path: r.path,
+                        element: <r.component />,
+                    })),
+                },
 
-        // 5. Fallback Route
-        {
-          path: "*",
-          element: <Navigate to={AUTH_PATHS.login} replace />,
+                // 5. Fallback Route
+                {
+                    path: "*",
+                    element: <Navigate to={AUTH_PATHS.login} replace />,
+                },
+            ],
         },
-      ],
-    },
-  ]);
+    ]);
 
-  return <RouterProvider router={router} />;
+    return <RouterProvider router={router} />;
 }
 
 export default App;

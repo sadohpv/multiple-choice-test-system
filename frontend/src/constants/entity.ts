@@ -3,4 +3,6 @@ export interface ISubjectEntity {
     subjectName: string;
     slug: string;
     createdAt: number;
+    questionCount?: number;
+    examCodeCount?: number;
 }

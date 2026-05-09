@@ -1,15 +1,11 @@
 import { useState } from "react";
 
 interface CreateSubjectModalProps {
-    isOpen: boolean;
     onClose: () => void;
-    onSubmit: (subject: { subjectName: string; slug: string; createdAt: number }) => void;
 }
-export default function CreateSubjectModal({ isOpen, onClose, onSubmit }: CreateSubjectModalProps) {
+export default function CreateSubjectModal({ onClose }: CreateSubjectModalProps) {
     const [subjectName, setSubjectName] = useState("");
     const [slug, setSlug] = useState("");
-
-    if (!isOpen) return null;
 
     const handleSubmit = () => {
         const newSubject = {
@@ -17,8 +13,6 @@ export default function CreateSubjectModal({ isOpen, onClose, onSubmit }: Create
             slug,
             createdAt: Date.now(), // thời gian hiện tại
         };
-
-        onSubmit?.(newSubject);
 
         // reset form
         setSubjectName("");

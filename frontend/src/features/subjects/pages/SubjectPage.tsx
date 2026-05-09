@@ -1,22 +1,11 @@
-import type { SubjectEntity } from "@/constants/entity";
-import { useApi } from "@/lib/Context/useAPI";
-import { useEffect, useState } from "react";
+import { useSubjectsStore } from "@/lib/store/subjects.store";
 
 export function SubjectPage() {
-    const api = useApi();
-    const [data, setData] = useState<SubjectEntity[]>([]);
-
-    useEffect(() => {
-        const load = async () => {
-            const data = await api.get("/subjects");
-            setData(data);
-        };
-        load();
-    }, []);
+    const subjects = useSubjectsStore(state => state.subjects);
 
     return (
         <div className="flex flex-wrap gap-4 w-full">
-            {data.map((subject, index) => (
+            {subjects.map((subject, index) => (
                 <div
                     key={subject.id ?? index}
                     className="w-56 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">

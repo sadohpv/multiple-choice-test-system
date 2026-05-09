@@ -23,12 +23,13 @@ public class SubjectRepository {
 
 	public Subject createSubject(Subject subject) {
 		// Sử dụng RETURNING * để lấy lại tất cả các cột sau khi insert thành công
-		String sql = "INSERT INTO \"Subject\" (slug, name, \"createdAt\") " +
-				"VALUES (?, ?, ?) " +
-				"RETURNING *";
+		String sql = "INSERT INTO \"Subject\" (slug, name, \"createdAt\") VALUES (?, ?, ?)" + "RETURNING *";
 
 		return jdbcTemplate.queryForObject(
 				sql,
-				(rs, rowNum) -> new Subject(rs));
+				(rs, rowNum) -> new Subject(rs),
+				subject.getSlug(), // Tham số 1 -> map vào slug
+				subject.getName(), // Tham số 2 -> map vào name <--- CÓ THỂ ĐANG NULL Ở ĐÂY
+				System.currentTimeMillis());
 	}
 }

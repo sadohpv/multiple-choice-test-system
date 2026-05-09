@@ -1,6 +1,6 @@
 export interface ISubjectEntity {
     id: string;
-    subjectName: string;
+    name: string;
     slug: string;
     createdAt: number;
     questionCount?: number;

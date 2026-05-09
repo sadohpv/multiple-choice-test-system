@@ -28,11 +28,11 @@ export function SubjectPage() {
             <div className="flex flex-col gap-3">
                 {subjects.map(subject => (
                     <div
-                        key={subject.subjectName}
+                        key={subject.name}
                         className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 hover-lift">
                         <div className="flex items-center gap-4">
                             <div className="inline-flex h-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold bg-neutral-50">
-                                {subject.subjectName}
+                                {subject.name}
                             </div>
 
                             <span className="text-sm text-neutral-500">Thi thử trực tuyến</span>

@@ -5,6 +5,9 @@ import java.sql.SQLException;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.ToString;
+
+@ToString
 public class Subject {
     private Long id;
     private String slug;
@@ -27,11 +30,11 @@ public class Subject {
         this.id = id;
     }
 
-    public void setSubjectName(String subjectName) {
+    public void setName(String subjectName) {
         this.name = subjectName;
     }
 
-    public void setSubjectSlug(String subjectSlug) {
+    public void setSlug(String subjectSlug) {
         this.slug = subjectSlug;
     }
 
@@ -51,7 +54,7 @@ public class Subject {
         return createdAt;
     }
 
-    public String getSubjectName() {
+    public String getName() {
         return name;
     }
 

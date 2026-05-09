@@ -25,7 +25,6 @@ public class SubjectController {
     @GetMapping
     public List<Subject> getAllSubjects(@UserIdToken Long userId) {
         List<Subject> result = subjectService.getAllSubject();
-        System.out.println(userId);
         return result;
     }
 
@@ -33,7 +32,7 @@ public class SubjectController {
     public Subject createSubject(
             @UserIdToken Long userId,
             @RequestBody Subject subject) {
-
+        System.out.print("SUBJECT" + subject.toString());
         return subjectService.createSubject(userId, subject);
     }
 }

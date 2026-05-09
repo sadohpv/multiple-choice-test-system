@@ -44,7 +44,7 @@ public class JwtService {
         this.signingKey = jwtProperties.secret().getBytes(StandardCharsets.UTF_8);
     }
 
-    public String createAccessToken(User user, List<String> roles) {
+    public String createAccessToken(User user) {
         Instant now = Instant.now(clock);
         Instant expiresAt = now.plusMillis(jwtProperties.accessTokenExpirationMs());
 
@@ -57,8 +57,8 @@ public class JwtService {
         payload.put("username", user.username());
         payload.put("email", user.email());
         payload.put("type", ACCESS_TOKEN_TYPE);
-        payload.put("roles", roles);
         payload.put("iat", now.getEpochSecond());
+        payload.put("roles", "USER");
         payload.put("exp", expiresAt.getEpochSecond());
 
         String unsignedToken = encodeJson(header) + "." + encodeJson(payload);

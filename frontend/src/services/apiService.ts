@@ -49,4 +49,12 @@ export const apiService = {
         // Quan trọng: Phải lấy .data vì axios trả về response object
         return res.data;
     },
+    createSubject: async ({ subjectName, slug }: { subjectName: string; slug?: string }): Promise<ISubjectEntity[]> => {
+        const res = await axiosInstance.post("/subjects", {
+            name: subjectName,
+            slug,
+        });
+        // Quan trọng: Phải lấy .data vì axios trả về response object
+        return res.data;
+    },
 };

@@ -3,7 +3,7 @@ import {
   Navigate,
   RouterProvider,
   Outlet,
-} from "react-router-dom"; // Nhớ import thêm Outlet
+} from "react-router-dom";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import {
   GuestRoute,

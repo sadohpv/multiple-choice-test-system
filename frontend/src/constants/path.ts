@@ -11,4 +11,5 @@ export const APP_PATHS = {
     results: "results",
     contribute: "contribute",
     profile: "profile",
+    roles: "roles",
 } as const;

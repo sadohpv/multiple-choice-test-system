@@ -10,6 +10,7 @@ const navItems = [
     { href: APP_PATHS.home, label: "Home" },
     { href: APP_PATHS.practice, label: "Thi thử" },
     { href: APP_PATHS.history, label: "Lịch sử" },
+    { href: APP_PATHS.roles, label: "Roles" },
     { href: APP_PATHS.profile, label: "Profile" },
 ];
 

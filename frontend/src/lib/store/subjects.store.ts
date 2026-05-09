@@ -1,14 +1,14 @@
-import type { SubjectEntity } from "@/constants/entity";
+import type { ISubjectEntity } from "@/constants/entity";
 import { create } from "zustand";
 
 interface SubjectsState {
-    subjects: SubjectEntity[];
+    subjects: ISubjectEntity[];
     loading: boolean;
     error: string | null;
 
     clearSubjects: () => void;
-    getAllSubjects: () => SubjectEntity[] | undefined;
-    setListSubject: (list: SubjectEntity[]) => void;
+    getAllSubjects: () => ISubjectEntity[] | undefined;
+    setListSubject: (list: ISubjectEntity[]) => void;
 }
 
 export const useSubjectsStore = create<SubjectsState>((set, get) => ({
@@ -17,7 +17,7 @@ export const useSubjectsStore = create<SubjectsState>((set, get) => ({
     error: null,
 
     clearSubjects: () => set({ subjects: [] }),
-    setListSubject: (list: SubjectEntity[]) => set({ subjects: list }),
+    setListSubject: (list: ISubjectEntity[]) => set({ subjects: list }),
     getAllSubjects: () => {
         return get().subjects;
     },

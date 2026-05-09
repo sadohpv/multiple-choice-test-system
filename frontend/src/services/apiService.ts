@@ -2,7 +2,7 @@
 import { axiosInstance } from "./axiosInstance";
 import { register, login, getCurrentUser, logout as apiLogout } from "../features/auth/api/auth";
 import type { AuthSession, AuthUser, LoginFormValues, RegisterFormValues } from "@/features/auth/types";
-import type { SubjectEntity } from "@/constants/entity";
+import type { ISubjectEntity } from "@/constants/entity";
 
 export const apiService = {
     // Các hàm helper cơ bản
@@ -44,8 +44,8 @@ export const apiService = {
     },
 
     // Logic Business
-    fetchAllSubject: async (): Promise<SubjectEntity[]> => {
-        const res = await axiosInstance.get<SubjectEntity[]>("/subjects");
+    fetchAllSubject: async (): Promise<ISubjectEntity[]> => {
+        const res = await axiosInstance.get<ISubjectEntity[]>("/subjects");
         // Quan trọng: Phải lấy .data vì axios trả về response object
         return res.data;
     },

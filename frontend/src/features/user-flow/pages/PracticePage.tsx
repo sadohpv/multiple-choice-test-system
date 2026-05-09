@@ -15,7 +15,7 @@ export function PracticePage() {
                         key={subject.subjectName}
                         className="rounded-xl border border-neutral-200 bg-white p-5 hover-lift">
                         <div
-                            className={`mb-4 inline-flex size-10 items-center justify-center rounded-lg border text-sm font-semibold ${subject.color}`}>
+                            className={`mb-4 inline-flex size-10 items-center justify-center rounded-lg border text-sm font-semibold`}>
                             {subject.subjectName}
                         </div>
                         <h2 className="text-sm font-semibold text-neutral-900">{subject.subjectName}</h2>

@@ -1,4 +1,4 @@
-export interface SubjectEntity {
+export interface ISubjectEntity {
     id: string;
     subjectName: string;
     slug: string;

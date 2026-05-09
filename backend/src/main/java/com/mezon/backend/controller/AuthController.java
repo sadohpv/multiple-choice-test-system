@@ -11,6 +11,7 @@ import com.mezon.backend.dto.UpdateProfileRequest;
 import com.mezon.backend.dto.UserCreateRequest;
 import com.mezon.backend.dto.UserResponse;
 import com.mezon.backend.security.AuthenticatedUserPrincipal;
+import com.mezon.backend.security.UserIdToken;
 import com.mezon.backend.service.AuthService;
 import com.mezon.backend.service.GoogleAuthService;
 import com.mezon.backend.service.UserService;
@@ -60,23 +61,23 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> currentUser(@AuthenticationPrincipal AuthenticatedUserPrincipal principal) {
-        return ResponseEntity.ok(authService.currentUser(principal.id()));
+    public ResponseEntity<UserResponse> currentUser(@UserIdToken Long userId) {
+        return ResponseEntity.ok(authService.currentUser(userId));
     }
 
     @PutMapping("/me/profile")
     public ResponseEntity<AuthMessageResponse> updateProfile(
-            @AuthenticationPrincipal AuthenticatedUserPrincipal principal,
+            @UserIdToken Long userId,
             @Valid @RequestBody UpdateProfileRequest request) {
-        userService.updateDisplayname(principal.id(), request.displayname());
+        userService.updateDisplayname(userId, request.displayname());
         return ResponseEntity.ok(new AuthMessageResponse("Cập nhật thành công"));
     }
 
     @PutMapping("/me/password")
     public ResponseEntity<AuthMessageResponse> changePassword(
-            @AuthenticationPrincipal AuthenticatedUserPrincipal principal,
+            @UserIdToken Long userId,
             @Valid @RequestBody ChangePasswordRequest request) {
-        userService.changePassword(principal.id(), request.currentPassword(), request.newPassword());
+        userService.changePassword(userId, request.currentPassword(), request.newPassword());
         return ResponseEntity.ok(new AuthMessageResponse("Đổi mật khẩu thành công"));
     }
 

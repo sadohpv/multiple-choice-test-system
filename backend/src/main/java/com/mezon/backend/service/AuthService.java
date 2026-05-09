@@ -50,7 +50,7 @@ public class AuthService {
         User user = userService.getUserById(rotation.userId())
                 .orElseThrow(() -> new InvalidRefreshTokenException("Người dùng không còn tồn tại"));
 
-        String accessToken = jwtService.createAccessToken(user, getRoleNames(user.id()));
+        String accessToken = jwtService.createAccessToken(user);
         return AuthResponse.bearer(
                 accessToken,
                 jwtService.accessTokenExpiresInSeconds(),
@@ -69,8 +69,11 @@ public class AuthService {
     }
 
     private AuthResponse issueTokens(User user) {
+        System.out.println(user);
+
         List<String> roles = getRoleNames(user.id());
-        String accessToken = jwtService.createAccessToken(user, roles);
+        System.out.println(roles);
+        String accessToken = jwtService.createAccessToken(user);
         String refreshToken = refreshTokenService.createRefreshToken(user.id());
         return AuthResponse.bearer(
                 accessToken,

@@ -4,6 +4,8 @@ import { FlowShell } from "@/features/user-flow/components/FlowShell";
 import { useSubjectsStore } from "@/lib/store/subjects.store";
 import { useModal } from "react-modal-hook";
 import CreateSubjectModal from "./CreateSubjectModal";
+import { TrashIcon } from "@/components/Icons";
+import { apiService } from "@/services/apiService";
 
 export function SubjectPage() {
     const subjects = useSubjectsStore(state => state.subjects);
@@ -11,6 +13,12 @@ export function SubjectPage() {
     const [openModalCreate, closeModalCreate] = useModal(() => {
         return <CreateSubjectModal onClose={closeModalCreate} />;
     }, []);
+
+    const handleDeleteSubject = async (id: string) => {
+        await apiService.deleteSubject({
+            id,
+        });
+    };
 
     return (
         <FlowShell
@@ -52,6 +60,13 @@ export function SubjectPage() {
                             </div>
                             <Button className="w-28" disabled variant="outline" size="sm">
                                 Sắp mở
+                            </Button>
+                            <Button
+                                className="size-10 bg-red-500 text-white hover:text-black cursor-pointer p-0"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteSubject(subject.id)}>
+                                <TrashIcon className="size-5!" />
                             </Button>
                         </div>
                     </div>

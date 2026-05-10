@@ -51,4 +51,24 @@ public class SubjectRepository {
 			throw new RuntimeException("Failed to create subject", e);
 		}
 	}
+
+	// Sử dụng RETURNING * để lấy lại tất cả các cột sau khi insert thành công
+	public Boolean deleteSubject(Long id) {
+
+		String sql = "DELETE FROM \"Subject\" WHERE id = ?";
+
+		try {
+
+			int rowsAffected = jdbcTemplate.update(sql, id);
+
+			return rowsAffected > 0;
+
+		} catch (DataAccessException e) {
+
+			System.out.println("============DataAccessException================ " + e);
+
+			throw new RuntimeException("Failed to delete subject", e);
+		}
+	}
+
 }

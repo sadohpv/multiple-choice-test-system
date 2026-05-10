@@ -54,7 +54,10 @@ export const apiService = {
             name: subjectName,
             slug,
         });
-        // Quan trọng: Phải lấy .data vì axios trả về response object
+        return res.data;
+    },
+    deleteSubject: async ({ id }: { id: string }): Promise<void> => {
+        const res = await axiosInstance.delete(`/subjects/${id}`);
         return res.data;
     },
 };

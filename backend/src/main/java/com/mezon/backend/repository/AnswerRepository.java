@@ -1,15 +1,19 @@
 package com.mezon.backend.repository;
-import com.mezon.backend.entity.Answer;
+
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.util.List;
-import java.util.Optional;
+import com.mezon.backend.dto.AnswerRequest;
+import com.mezon.backend.entity.Answer;
 
 @Repository
 public class AnswerRepository {
@@ -77,5 +81,60 @@ public class AnswerRepository {
         String sql = "SELECT COUNT(id) FROM \"Answers\" WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
         return count != null && count > 0;
+    }
+
+    public List<Answer> saveAll(Long question_id, List<AnswerRequest> answers) {
+
+        if (answers.isEmpty()) {
+            return List.of();
+        }
+
+        long now = System.currentTimeMillis();
+
+        StringBuilder sql = new StringBuilder("""
+                INSERT INTO "Answers"
+                (description, question_id, valid, "createdAt", "updatedAt")
+                VALUES
+                """);
+
+        List<Object> params = new ArrayList<>();
+
+        for (int i = 0; i < answers.size(); i++) {
+
+            if (i > 0) {
+                sql.append(", ");
+            }
+
+            sql.append("(?, ?, ?, ?, ?)");
+
+            AnswerRequest answer = answers.get(i);
+
+            params.add(answer.description());
+            params.add(question_id);
+            params.add(answer.valid());
+            params.add(now);
+            params.add(now);
+        }
+
+        sql.append("""
+                RETURNING
+                id,
+                description,
+                question_id,
+                valid,
+                "createdAt",
+                "updatedAt"
+                """);
+
+        return jdbcTemplate.query(
+                sql.toString(),
+                (rs, rowNum) -> new Answer(
+                        rs.getLong("id"),
+                        rs.getString("description"),
+                        rs.getLong("question_id"),
+                        rs.getBoolean("valid"),
+                        rs.getLong("createdAt"),
+                        rs.getLong("updatedAt")),
+                params.toArray());
     }
 }

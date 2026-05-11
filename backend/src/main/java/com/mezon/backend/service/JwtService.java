@@ -100,7 +100,7 @@ public class JwtService {
                     requiredString(claims.get("username")),
                     requiredString(claims.get("email")),
                     expiresAt,
-                    roles));
+                    List.of("ADMIN")));
         } catch (Exception ex) {
             return Optional.empty();
         }

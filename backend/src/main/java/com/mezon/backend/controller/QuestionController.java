@@ -1,10 +1,22 @@
 package com.mezon.backend.controller;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mezon.backend.dto.QuestionRequest;
+import com.mezon.backend.dto.QuestionResponse;
 import com.mezon.backend.entity.Question;
 import com.mezon.backend.service.QuestionService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -34,6 +46,14 @@ public class QuestionController {
         Question created = questionService.createQuestion(question);
         return ResponseEntity.ok(created);
     }
+
+    @PostMapping("/create")
+    public QuestionResponse createOneQuest(@RequestBody QuestionRequest entity) {
+        //TODO: process POST request
+        QuestionResponse response = questionService.createOneQuestion(entity);
+        return response;
+    }
+    
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateQuestion(@PathVariable Long id, @RequestBody Question question) {

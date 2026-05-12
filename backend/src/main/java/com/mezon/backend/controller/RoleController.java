@@ -56,8 +56,8 @@ public class RoleController {
     public ResponseEntity<Role> createRole(@Valid @RequestBody RoleUpsertRequest request) {
         Role role = toRole(request);
         ensureRoleNameNotDuplicatedForCreate(role.getRoleName());
-        roleRepository.save(role);
-        return ResponseEntity.created(URI.create("/api/roles")).body(role);
+        Role created = roleRepository.save(role);
+        return ResponseEntity.created(URI.create("/api/roles/" + created.getId())).body(created);
     }
 
     // PUT: http://localhost:8080/api/roles/1

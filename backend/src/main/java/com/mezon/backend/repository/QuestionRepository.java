@@ -1,15 +1,17 @@
 package com.mezon.backend.repository;
-import com.mezon.backend.entity.Question;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.util.List;
-import java.util.Optional;
+import com.mezon.backend.dto.QuestionRequest;
+import com.mezon.backend.entity.Question;
 
 @Repository
 public class QuestionRepository {
@@ -45,7 +47,8 @@ public class QuestionRepository {
         return jdbcTemplate.query(sql, rowMapper, id).stream().findFirst();
     }
 
-    public Question save(Question question) {
+    public Question save(QuestionRequest question) {
+        System.out.print(question);
         String sql = "INSERT INTO \"Questions\" (description, content, type, \"createdAt\", \"updatedAt\", difficult, subject_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         long currentTime = System.currentTimeMillis();
 

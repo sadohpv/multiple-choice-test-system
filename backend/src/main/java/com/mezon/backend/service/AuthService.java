@@ -71,8 +71,11 @@ public class AuthService {
     private AuthResponse issueTokens(User user) {
         List<String> roles = getRoleNames(user.id());
 <<<<<<< HEAD
+<<<<<<< HEAD
         String accessToken = jwtService.createAccessToken(user, roles);
 =======
+=======
+>>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
         String accessToken = jwtService.createAccessToken(user);
 >>>>>>> origin/develop
         String refreshToken = refreshTokenService.createRefreshToken(user.id());

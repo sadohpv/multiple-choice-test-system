@@ -1,28 +1,34 @@
 package com.mezon.backend.service;
-import com.mezon.backend.dto.ParsedQuestionDTO;
-import com.mezon.backend.entity.Answer;
-import com.mezon.backend.entity.Question;
-import com.mezon.backend.repository.AnswerRepository;
-import com.mezon.backend.repository.QuestionRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.mezon.backend.dto.ParsedQuestionDTO;
+import com.mezon.backend.dto.QuestionRequest;
+import com.mezon.backend.dto.QuestionResponse;
+import com.mezon.backend.entity.Answer;
+import com.mezon.backend.entity.Question;
+import com.mezon.backend.repository.AnswerRepository;
+import com.mezon.backend.repository.QuestionRepository;
+
 @Service
 public class QuestionService {
 
+    private final AnswerService answerService;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final TransactionTemplate transactionTemplate;
 
     public QuestionService(QuestionRepository questionRepository,
-                          AnswerRepository answerRepository,
-                          TransactionTemplate transactionTemplate) {
+            AnswerRepository answerRepository,
+            TransactionTemplate transactionTemplate, AnswerService answerService) {
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
         this.transactionTemplate = transactionTemplate;
+        this.answerService = answerService;
     }
 
     public List<Question> getAllQuestions() {
@@ -33,7 +39,7 @@ public class QuestionService {
         return questionRepository.findById(id);
     }
 
-    public Question createQuestion(Question question) {
+    public Question createQuestion(QuestionRequest question) {
         return questionRepository.save(question);
     }
 
@@ -48,8 +54,7 @@ public class QuestionService {
                     existing.get().createdAt(),
                     System.currentTimeMillis(),
                     question.difficult(),
-                    question.subjectId()
-            );
+                    question.subjectId());
             questionRepository.update(id, updated);
             return true;
         }
@@ -68,15 +73,13 @@ public class QuestionService {
         return transactionTemplate.execute(status -> {
             int savedCount = 0;
             for (ParsedQuestionDTO dto : parsedQuestions) {
-                Question question = new Question(
-                        null,
+                QuestionRequest question = new QuestionRequest(
                         dto.getQuestion(),
-                        null,
+                        dto.getQuestion(),
                         "MULTIPLE_CHOICE",
-                        null,
-                        null,
                         parseDifficultyLevel(dto.getDifficulty()),
-                        dto.getSubjectId() != null ? dto.getSubjectId() : 1L
+                        dto.getSubjectId() != null ? dto.getSubjectId() : 1L,
+                        List.of() // hoặc danh sách answers thực tế
                 );
 
                 Question saved = questionRepository.save(question);
@@ -90,8 +93,7 @@ public class QuestionService {
                                 saved.id(),
                                 dto.getCorrectIndex() != null && i == dto.getCorrectIndex(),
                                 null,
-                                null
-                        );
+                                null);
                         answerRepository.save(answer);
                     }
                 }
@@ -102,11 +104,34 @@ public class QuestionService {
     }
 
     private Integer parseDifficultyLevel(String difficulty) {
-        if (difficulty == null) return 2;
+        if (difficulty == null)
+            return 2;
         return switch (difficulty.toUpperCase().trim()) {
             case "EASY", "DỄ", "DE", "1" -> 1;
             case "HARD", "KHO", "KHÓ", "3" -> 3;
             default -> 2;
         };
+    }
+
+    public QuestionResponse createOneQuestion(QuestionRequest questionRequest) {
+
+        QuestionRequest request = new QuestionRequest(
+                questionRequest.description(),
+                questionRequest.description(),
+                "MULTIPLE_CHOICE",
+                questionRequest.difficult(),
+                questionRequest.subjectId(), List.of());
+
+        Question question = questionRepository.save(request);
+
+        if (question.id() == null) {
+            throw new RuntimeException("Failed to create question");
+        }
+
+        List<Answer> answers = answerService.saveAllAnswers(
+                question.id(),
+                questionRequest.answers());
+
+        return new QuestionResponse(question, answers);
     }
 }

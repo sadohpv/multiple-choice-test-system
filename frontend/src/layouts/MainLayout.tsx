@@ -9,6 +9,7 @@ import { axiosInstance } from "@/services/axiosInstance";
 const navItems = [
     { href: APP_PATHS.home, label: "Home" },
 <<<<<<< HEAD
+<<<<<<< HEAD
     { href: APP_PATHS.practice, label: "Thi thử" },
     { href: APP_PATHS.history, label: "Lịch sử" },
     { href: APP_PATHS.roles, label: "Roles" },
@@ -16,6 +17,10 @@ const navItems = [
     { href: APP_PATHS.practice, label: "Practice" },
     { href: APP_PATHS.history, label: "History" },
 >>>>>>> origin/develop
+=======
+    { href: APP_PATHS.practice, label: "Practice" },
+    { href: APP_PATHS.history, label: "History" },
+>>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
     { href: APP_PATHS.profile, label: "Profile" },
     { href: APP_PATHS.subject, label: "Subject" },
 ];

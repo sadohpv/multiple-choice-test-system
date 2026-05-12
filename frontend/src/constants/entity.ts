@@ -5,6 +5,7 @@ export interface ISubjectEntity {
     createdAt: number;
     questionCount?: number;
     examCodeCount?: number;
+<<<<<<< HEAD
 }
 
 export interface RoleEntity {
@@ -14,4 +15,6 @@ export interface RoleEntity {
     roleLevel?: number | null;
     createdAt?: number | null;
     updatedAt?: number | null;
+=======
+>>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
 }

@@ -12,8 +12,12 @@ export const APP_PATHS = {
     contribute: "contribute",
     profile: "profile",
 <<<<<<< HEAD
+<<<<<<< HEAD
     roles: "roles",
 =======
     subject: "subject",
 >>>>>>> origin/develop
+=======
+    subject: "subject",
+>>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
 } as const;

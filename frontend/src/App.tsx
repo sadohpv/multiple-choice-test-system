@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   createBrowserRouter,
   Navigate,
@@ -8,6 +9,9 @@ import {
 =======
 import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom"; // Nhớ import thêm Outlet
 >>>>>>> origin/develop
+=======
+import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom"; // Nhớ import thêm Outlet
+>>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { GuestRoute, ProtectedRoute } from "@/features/auth/components/ProtectedRoute";
 import { HomePage } from "@/features/home/pages/HomePage";

@@ -1,10 +1,13 @@
 package com.mezon.backend.service;
-import com.mezon.backend.entity.Answer;
-import com.mezon.backend.repository.AnswerRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.mezon.backend.dto.AnswerRequest;
+import com.mezon.backend.entity.Answer;
+import com.mezon.backend.repository.AnswerRepository;
 
 @Service
 public class AnswerService {
@@ -40,8 +43,7 @@ public class AnswerService {
                     answer.questionId(),
                     answer.valid(),
                     existing.get().createdAt(),
-                    System.currentTimeMillis()
-            );
+                    System.currentTimeMillis());
             answerRepository.update(id, updated);
             return true;
         }
@@ -54,5 +56,9 @@ public class AnswerService {
             return true;
         }
         return false;
+    }
+
+    public List<Answer> saveAllAnswers(Long question_id, List<AnswerRequest> answers) {
+        return answerRepository.saveAll(question_id, answers);
     }
 }

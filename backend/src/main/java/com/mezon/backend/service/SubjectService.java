@@ -30,8 +30,14 @@ public class SubjectService {
 		if (!roleService.checkCanCreate(userId)) {
 			throw new AccessDeniedException("Người dùng không có quyền tạo Subject.");
 		}
-
 		return subjectRepository.createSubject(subjectData);
+	}
+
+	public Boolean deleteSubject(Long userId, Long id) {
+		if (!roleService.checkCanCreate(userId)) {
+			throw new AccessDeniedException("Người dùng không có quyền tạo Subject.");
+		}
+		return subjectRepository.deleteSubject(id);
 	}
 
 }

@@ -1,12 +1,24 @@
 package com.mezon.backend.dto;
 
-import java.util.Map;
+public class ApiErrorResponse {
 
-public record ApiErrorResponse(
-        String message,
-        Map<String, String> fieldErrors) {
+    private String code;
+    private String message;
 
-    public static ApiErrorResponse of(String message) {
-        return new ApiErrorResponse(message, null);
+    public ApiErrorResponse(String code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public static ApiErrorResponse of(String code, String message) {
+        return new ApiErrorResponse(code, message);
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

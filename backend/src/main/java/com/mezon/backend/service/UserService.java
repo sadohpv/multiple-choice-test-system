@@ -1,14 +1,16 @@
 package com.mezon.backend.service;
 
-import com.mezon.backend.dto.UserCreateRequest;
-import com.mezon.backend.entity.User;
-import com.mezon.backend.exception.DuplicateFieldException;
-import com.mezon.backend.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.mezon.backend.dto.UserCreateRequest;
+import com.mezon.backend.entity.User;
+import com.mezon.backend.exception.DuplicateFieldException;
+import com.mezon.backend.exception.ErrorCode;
+import com.mezon.backend.repository.UserRepository;
 
 @Service
 public class UserService {
@@ -57,10 +59,12 @@ public class UserService {
         validateUserInput(normalized);
 
         if (userRepository.existsByUsername(normalized.username())) {
-            throw new DuplicateFieldException("Tên đăng nhập '" + normalized.username() + "' đã tồn tại");
+            throw new DuplicateFieldException(ErrorCode.SUBJECT_SLUG_DUPLICATE,
+                    "Tên đăng nhập '" + normalized.username() + "' đã tồn tại");
         }
         if (userRepository.existsByEmail(normalized.email())) {
-            throw new DuplicateFieldException("Email '" + normalized.email() + "' đã tồn tại");
+            throw new DuplicateFieldException(ErrorCode.SUBJECT_SLUG_DUPLICATE,
+                    "Email '" + normalized.email() + "' đã tồn tại");
         }
 
         User user = new User(null, normalized.username(), normalized.displayname(),
@@ -81,12 +85,14 @@ public class UserService {
         // check dup only if username changed
         if (!current.username().equals(normalized.username())
                 && userRepository.existsByUsername(normalized.username())) {
-            throw new DuplicateFieldException("Tên đăng nhập '" + normalized.username() + "' đã tồn tại");
+            throw new DuplicateFieldException(ErrorCode.SUBJECT_SLUG_DUPLICATE,
+                    "Tên đăng nhập '" + normalized.username() + "' đã tồn tại");
         }
         // check dup only if email changed
         if (!current.email().equalsIgnoreCase(normalized.email())
                 && userRepository.existsByEmail(normalized.email())) {
-            throw new DuplicateFieldException("Email '" + normalized.email() + "' đã tồn tại");
+            throw new DuplicateFieldException(ErrorCode.SUBJECT_SLUG_DUPLICATE,
+                    "Email '" + normalized.email() + "' đã tồn tại");
         }
 
         // map dto to entity
@@ -146,7 +152,8 @@ public class UserService {
             throw new IllegalArgumentException("Tên đăng nhập là bắt buộc");
         }
         if (!req.username().matches("^[a-zA-Z0-9._-]{3,20}$")) {
-            throw new IllegalArgumentException("Tên đăng nhập phải gồm 3-20 ký tự chữ, số, dấu chấm, gạch ngang hoặc gạch dưới");
+            throw new IllegalArgumentException(
+                    "Tên đăng nhập phải gồm 3-20 ký tự chữ, số, dấu chấm, gạch ngang hoặc gạch dưới");
         }
         if (req.displayname() == null || req.displayname().isBlank()) {
             throw new IllegalArgumentException("Tên hiển thị là bắt buộc");

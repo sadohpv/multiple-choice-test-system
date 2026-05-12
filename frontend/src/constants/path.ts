@@ -11,5 +11,9 @@ export const APP_PATHS = {
     results: "results",
     contribute: "contribute",
     profile: "profile",
+<<<<<<< HEAD
     roles: "roles",
+=======
+    subject: "subject",
+>>>>>>> origin/develop
 } as const;

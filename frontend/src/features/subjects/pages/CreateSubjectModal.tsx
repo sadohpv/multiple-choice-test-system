@@ -1,30 +1,34 @@
-import { useState } from "react";
+import { apiService } from "@/services/apiService";
+import { useCallback, useState, type ChangeEvent } from "react";
 
 interface CreateSubjectModalProps {
-    isOpen: boolean;
     onClose: () => void;
-    onSubmit: (subject: { subjectName: string; slug: string; createdAt: number }) => void;
 }
-export default function CreateSubjectModal({ isOpen, onClose, onSubmit }: CreateSubjectModalProps) {
+export default function CreateSubjectModal({ onClose }: CreateSubjectModalProps) {
     const [subjectName, setSubjectName] = useState("");
     const [slug, setSlug] = useState("");
 
-    if (!isOpen) return null;
-
-    const handleSubmit = () => {
-        const newSubject = {
+    const handleSubmit = async () => {
+        await apiService.createSubject({
             subjectName,
             slug,
-            createdAt: Date.now(), // thời gian hiện tại
-        };
-
-        onSubmit?.(newSubject);
+        });
 
         // reset form
         setSubjectName("");
         setSlug("");
         onClose?.();
     };
+
+    const handleChangeName = useCallback((e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+        setSubjectName(e.target.value);
+        const formattedValue = e.target.value.trim().toLowerCase().replace(/\s+/g, "-").replace(/-+/g, "-");
+        setSlug(formattedValue);
+    }, []);
+
+    const handleChangeSlug = useCallback((e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+        setSlug(e.target.value);
+    }, []);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -43,7 +47,7 @@ export default function CreateSubjectModal({ isOpen, onClose, onSubmit }: Create
                         <label className="text-sm text-gray-600">Subject Name</label>
                         <input
                             value={subjectName}
-                            onChange={e => setSubjectName(e.target.value)}
+                            onChange={handleChangeName}
                             className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
                             placeholder="Enter subject name"
                         />
@@ -53,7 +57,7 @@ export default function CreateSubjectModal({ isOpen, onClose, onSubmit }: Create
                         <label className="text-sm text-gray-600">Slug</label>
                         <input
                             value={slug}
-                            onChange={e => setSlug(e.target.value)}
+                            onChange={handleChangeSlug}
                             className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
                             placeholder="example-slug"
                         />

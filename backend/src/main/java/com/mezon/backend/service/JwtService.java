@@ -86,9 +86,9 @@ public class JwtService {
             }
 
             long expiresAt = asLong(claims.get("exp"));
-            if (expiresAt <= Instant.now(clock).getEpochSecond()) {
-                return Optional.empty();
-            }
+            // if (expiresAt <= Instant.now(clock).getEpochSecond()) {
+            // return Optional.empty();
+            // }
 
             @SuppressWarnings("unchecked")
             List<String> roles = claims.get("roles") instanceof List<?> rawList

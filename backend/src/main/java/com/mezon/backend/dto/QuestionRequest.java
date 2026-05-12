@@ -10,4 +10,3 @@ public record QuestionRequest(String description,
 		List<AnswerRequest> answers) {
 
 }
-

@@ -42,7 +42,7 @@ public class QuestionController {
     }
 
     @PostMapping
-    public ResponseEntity<Question> createQuestion(@RequestBody Question question) {
+    public ResponseEntity<Question> createQuestion(@RequestBody QuestionRequest question) {
         Question created = questionService.createQuestion(question);
         return ResponseEntity.ok(created);
     }

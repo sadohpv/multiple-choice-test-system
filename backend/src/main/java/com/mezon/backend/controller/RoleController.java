@@ -1,20 +1,30 @@
 package com.mezon.backend.controller;
 
-import com.mezon.backend.dto.RoleUpsertRequest;
-import com.mezon.backend.entity.Role;
-import com.mezon.backend.exception.DuplicateFieldException;
-import com.mezon.backend.repository.RoleRepository;
-import com.mezon.backend.service.RoleService;
-import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.mezon.backend.dto.RoleUpsertRequest;
+import com.mezon.backend.entity.Role;
+import com.mezon.backend.exception.DuplicateFieldException;
+import com.mezon.backend.exception.ErrorCode;
+import com.mezon.backend.repository.RoleRepository;
 import com.mezon.backend.security.Auditable;
+import com.mezon.backend.service.RoleService;
 
-import java.net.URI;
-import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/roles")
@@ -110,13 +120,13 @@ public class RoleController {
 
     private void ensureRoleNameNotDuplicatedForCreate(String roleName) {
         if (roleRepository.existsByRoleNameIgnoreCase(roleName)) {
-            throw new DuplicateFieldException("Tên role đã tồn tại");
+            throw new DuplicateFieldException(ErrorCode.SUBJECT_SLUG_DUPLICATE, "Tên role đã tồn tại");
         }
     }
 
     private void ensureRoleNameNotDuplicatedForUpdate(String roleName, Long id) {
         if (roleRepository.existsByRoleNameIgnoreCaseAndIdNot(roleName, id)) {
-            throw new DuplicateFieldException("Tên role đã tồn tại");
+            throw new DuplicateFieldException(ErrorCode.SUBJECT_SLUG_DUPLICATE, "Tên role đã tồn tại");
         }
     }
 }

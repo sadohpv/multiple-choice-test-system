@@ -39,7 +39,7 @@ public class QuestionService {
         return questionRepository.findById(id);
     }
 
-    public Question createQuestion(Question question) {
+    public Question createQuestion(QuestionRequest question) {
         return questionRepository.save(question);
     }
 
@@ -73,15 +73,14 @@ public class QuestionService {
         return transactionTemplate.execute(status -> {
             int savedCount = 0;
             for (ParsedQuestionDTO dto : parsedQuestions) {
-                Question question = new Question(
-                        null,
+                QuestionRequest question = new QuestionRequest(
                         dto.getQuestion(),
-                        null,
+                        dto.getQuestion(),
                         "MULTIPLE_CHOICE",
-                        null,
-                        null,
                         parseDifficultyLevel(dto.getDifficulty()),
-                        dto.getSubjectId() != null ? dto.getSubjectId() : 1L);
+                        dto.getSubjectId() != null ? dto.getSubjectId() : 1L,
+                        List.of() // hoặc danh sách answers thực tế
+                );
 
                 Question saved = questionRepository.save(question);
 
@@ -116,15 +115,12 @@ public class QuestionService {
 
     public QuestionResponse createOneQuestion(QuestionRequest questionRequest) {
 
-        Question request = new Question(
-                null,
+        QuestionRequest request = new QuestionRequest(
                 questionRequest.description(),
-                null,
+                questionRequest.description(),
                 "MULTIPLE_CHOICE",
-                null,
-                null,
                 questionRequest.difficult(),
-                questionRequest.subjectId());
+                questionRequest.subjectId(), List.of());
 
         Question question = questionRepository.save(request);
 

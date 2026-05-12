@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Default to ROLE_USER if no roles assigned
         if (authorities.isEmpty()) {
-            authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+            authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

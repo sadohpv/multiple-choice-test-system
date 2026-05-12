@@ -1,17 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-  Outlet,
-} from "react-router-dom";
-=======
-import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom"; // Nhớ import thêm Outlet
->>>>>>> origin/develop
-=======
-import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom"; // Nhớ import thêm Outlet
->>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from "react-router-dom";
+import { ModalProvider } from "react-modal-hook";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { GuestRoute, ProtectedRoute } from "@/features/auth/components/ProtectedRoute";
 import { HomePage } from "@/features/home/pages/HomePage";
@@ -31,7 +19,6 @@ import { AdminLayout } from "@/layouts/AdminLayout";
 import { UserManagementPage } from "@/features/admin/pages/UserManagementPage";
 import { RoleManagementPage } from "@/features/admin/pages/RoleManagementPage";
 import { SubjectPage } from "./features/subjects/pages/SubjectPage";
-import { ModalProvider } from "react-modal-hook";
 
 function App() {
     const router = createBrowserRouter([
@@ -46,13 +33,10 @@ function App() {
                 </ApiProvider>
             ),
             children: [
-                // Home Page
                 {
                     index: true,
                     element: <HomePage />,
                 },
-
-                // Protected App Routes
                 {
                     loader: practiceLoader,
                     element: (
@@ -87,8 +71,6 @@ function App() {
                         },
                     ],
                 },
-
-                // Admin Routes
                 {
                     path: "/admin",
                     element: (
@@ -101,7 +83,9 @@ function App() {
                             index: true,
                             element: (
                                 <div className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-8 text-center">
-                                    <p className="text-sm text-neutral-400">Chọn một mục ở menu bên trái để bắt đầu.</p>
+                                    <p className="text-sm text-neutral-400">
+                                        Chọn một mục ở menu bên trái để bắt đầu.
+                                    </p>
                                 </div>
                             ),
                         },
@@ -115,21 +99,17 @@ function App() {
                         },
                     ],
                 },
-
-                // Guest / Auth Routes
                 {
                     element: (
                         <GuestRoute>
                             <AuthLayout />
                         </GuestRoute>
                     ),
-                    children: publicRoutes.map(r => ({
-                        path: r.path,
-                        element: <r.component />,
+                    children: publicRoutes.map(route => ({
+                        path: route.path,
+                        element: <route.component />,
                     })),
                 },
-
-                // 5. Fallback Route
                 {
                     path: "*",
                     element: <Navigate to={AUTH_PATHS.login} replace />,

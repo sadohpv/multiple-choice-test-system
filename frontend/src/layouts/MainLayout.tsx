@@ -1,26 +1,15 @@
+import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
 import { useApi, useAuth } from "@/lib/Context/useAPI";
-import { useEffect, useState } from "react";
 import { axiosInstance } from "@/services/axiosInstance";
 
 const navItems = [
     { href: APP_PATHS.home, label: "Home" },
-<<<<<<< HEAD
-<<<<<<< HEAD
-    { href: APP_PATHS.practice, label: "Thi thử" },
-    { href: APP_PATHS.history, label: "Lịch sử" },
-    { href: APP_PATHS.roles, label: "Roles" },
-=======
     { href: APP_PATHS.practice, label: "Practice" },
     { href: APP_PATHS.history, label: "History" },
->>>>>>> origin/develop
-=======
-    { href: APP_PATHS.practice, label: "Practice" },
-    { href: APP_PATHS.history, label: "History" },
->>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
     { href: APP_PATHS.profile, label: "Profile" },
     { href: APP_PATHS.subject, label: "Subject" },
 ];
@@ -32,14 +21,15 @@ export function MainLayout() {
     const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
-        if (isAuthenticated && user) {
-            axiosInstance
-                .get(`/roles/max-role-level/${user.id}`)
-                .then(res => setIsAdmin(res.data >= 50))
-                .catch(() => setIsAdmin(false));
-        } else {
+        if (!isAuthenticated || !user) {
             setIsAdmin(false);
+            return;
         }
+
+        axiosInstance
+            .get<number>(`/roles/max-role-level/${user.id}`)
+            .then(response => setIsAdmin(response.data >= 50))
+            .catch(() => setIsAdmin(false));
     }, [isAuthenticated, user]);
 
     const handleLogout = async () => {
@@ -52,20 +42,17 @@ export function MainLayout() {
 
     return (
         <div className="min-h-screen bg-[#f8f8f8] text-neutral-900">
-            {/* Header */}
             <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 backdrop-blur-md">
                 <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
-                    {/* Logo */}
                     <Link
                         to={APP_PATHS.home}
-                        className="flex items-center gap-2 text-sm font-semibold tracking-tight text-neutral-900 hover:text-indigo-600 transition-colors">
+                        className="flex items-center gap-2 text-sm font-semibold tracking-tight text-neutral-900 transition-colors hover:text-indigo-600">
                         <span className="inline-flex size-6 items-center justify-center rounded-md bg-indigo-600 text-xs font-bold text-white">
                             M
                         </span>
                         Mezon Exam
                     </Link>
 
-                    {/* Nav */}
                     <nav className="hidden items-center gap-0.5 sm:flex" aria-label="Điều hướng chính">
                         {navItems.map(item => {
                             if (item.href === APP_PATHS.profile && !isAuthenticated) return null;
@@ -84,7 +71,7 @@ export function MainLayout() {
                                 </NavLink>
                             );
                         })}
-                        {isAdmin && (
+                        {isAdmin ? (
                             <NavLink
                                 key="/admin"
                                 to="/admin"
@@ -96,10 +83,9 @@ export function MainLayout() {
                                 }>
                                 Admin
                             </NavLink>
-                        )}
+                        ) : null}
                     </nav>
 
-                    {/* Actions */}
                     <div className="flex items-center gap-2">
                         {isAuthenticated ? (
                             <>
@@ -121,7 +107,6 @@ export function MainLayout() {
 
             <Outlet />
 
-            {/* Footer */}
             <footer className="border-t border-neutral-200 bg-white">
                 <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 text-xs text-neutral-400">
                     <span>© 2026 Mezon Exam</span>

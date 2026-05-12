@@ -116,13 +116,16 @@ public class RoleRepository {
             return;
         }
 
-        String insertSql = """
-                INSERT INTO "Users_Roles" (id, user_id, role_id, "createdAt")
-                VALUES ((SELECT COALESCE(MAX(id), 0) + 1 FROM "Users_Roles"), ?, ?, ?)
-                """;
         long now = System.currentTimeMillis();
         for (Long roleId : roleIds) {
-            jdbcTemplate.update(insertSql, userId, roleId, now);
+            int roleLevel = findById(roleId)
+                    .map(Role::getRoleLevel)
+                    .orElse(0);
+            String insertSql = """
+                    INSERT INTO "Users_Roles" (id, user_id, role_id, "createdAt", max_role_level)
+                    VALUES ((SELECT COALESCE(MAX(id), 0) + 1 FROM "Users_Roles"), ?, ?, ?, ?)
+                    """;
+            jdbcTemplate.update(insertSql, userId, roleId, now, roleLevel);
         }
     }
 }

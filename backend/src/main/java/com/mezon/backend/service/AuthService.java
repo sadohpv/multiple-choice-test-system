@@ -1,7 +1,5 @@
 package com.mezon.backend.service;
 
-import java.util.List;
-
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +13,8 @@ import com.mezon.backend.entity.Role;
 import com.mezon.backend.entity.User;
 import com.mezon.backend.exception.InvalidRefreshTokenException;
 import com.mezon.backend.repository.RoleRepository;
+
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -70,14 +70,7 @@ public class AuthService {
 
     private AuthResponse issueTokens(User user) {
         List<String> roles = getRoleNames(user.id());
-<<<<<<< HEAD
-<<<<<<< HEAD
         String accessToken = jwtService.createAccessToken(user, roles);
-=======
-=======
->>>>>>> 681270c2958d931e2775a73de7e61076aa1203a4
-        String accessToken = jwtService.createAccessToken(user);
->>>>>>> origin/develop
         String refreshToken = refreshTokenService.createRefreshToken(user.id());
         return AuthResponse.bearer(
                 accessToken,

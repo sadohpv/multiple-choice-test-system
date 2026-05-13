@@ -1,7 +1,5 @@
 package com.mezon.backend.service;
 
-import java.util.List;
-
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +13,8 @@ import com.mezon.backend.entity.Role;
 import com.mezon.backend.entity.User;
 import com.mezon.backend.exception.InvalidRefreshTokenException;
 import com.mezon.backend.repository.RoleRepository;
+
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -50,7 +50,7 @@ public class AuthService {
         User user = userService.getUserById(rotation.userId())
                 .orElseThrow(() -> new InvalidRefreshTokenException("Người dùng không còn tồn tại"));
 
-        String accessToken = jwtService.createAccessToken(user);
+        String accessToken = jwtService.createAccessToken(user, getRoleNames(user.id()));
         return AuthResponse.bearer(
                 accessToken,
                 jwtService.accessTokenExpiresInSeconds(),
@@ -70,7 +70,7 @@ public class AuthService {
 
     private AuthResponse issueTokens(User user) {
         List<String> roles = getRoleNames(user.id());
-        String accessToken = jwtService.createAccessToken(user);
+        String accessToken = jwtService.createAccessToken(user, roles);
         String refreshToken = refreshTokenService.createRefreshToken(user.id());
         return AuthResponse.bearer(
                 accessToken,

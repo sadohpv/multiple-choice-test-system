@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
 import { useApi, useAuth } from "@/lib/Context/useAPI";
-import { axiosInstance } from "@/services/axiosInstance";
 
 const navItems = [
     { href: APP_PATHS.home, label: "Home" },
@@ -18,19 +16,7 @@ export function MainLayout() {
     const navigate = useNavigate();
     const api = useApi();
     const { isAuthenticated, user } = useAuth();
-    const [isAdmin, setIsAdmin] = useState(false);
-
-    useEffect(() => {
-        if (!isAuthenticated || !user) {
-            setIsAdmin(false);
-            return;
-        }
-
-        axiosInstance
-            .get<number>(`/roles/max-role-level/${user.id}`)
-            .then(response => setIsAdmin(response.data >= 50))
-            .catch(() => setIsAdmin(false));
-    }, [isAuthenticated, user]);
+    const isAdmin = (user?.roles ?? []).some(role => role === "ADMIN" || role === "MOD");
 
     const handleLogout = async () => {
         try {

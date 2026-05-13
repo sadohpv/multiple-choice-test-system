@@ -59,8 +59,6 @@ public class JwtService {
         payload.put("type", ACCESS_TOKEN_TYPE);
         payload.put("roles", roles);
         payload.put("iat", now.getEpochSecond());
-        payload.put("roles", roles);
-
         payload.put("exp", expiresAt.getEpochSecond());
 
         String unsignedToken = encodeJson(header) + "." + encodeJson(payload);

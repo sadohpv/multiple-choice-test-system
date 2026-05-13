@@ -57,8 +57,10 @@ public class JwtService {
         payload.put("username", user.username());
         payload.put("email", user.email());
         payload.put("type", ACCESS_TOKEN_TYPE);
+        payload.put("roles", roles);
         payload.put("iat", now.getEpochSecond());
         payload.put("roles", roles);
+
         payload.put("exp", expiresAt.getEpochSecond());
 
         String unsignedToken = encodeJson(header) + "." + encodeJson(payload);
@@ -86,9 +88,9 @@ public class JwtService {
             }
 
             long expiresAt = asLong(claims.get("exp"));
-            // if (expiresAt <= Instant.now(clock).getEpochSecond()) {
-            // return Optional.empty();
-            // }
+            if (expiresAt <= Instant.now(clock).getEpochSecond()) {
+                return Optional.empty();
+            }
 
             @SuppressWarnings("unchecked")
             List<String> roles = claims.get("roles") instanceof List<?> rawList

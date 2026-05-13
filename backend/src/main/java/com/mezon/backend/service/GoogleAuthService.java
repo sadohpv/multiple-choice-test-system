@@ -71,7 +71,7 @@ public class GoogleAuthService {
                 accessToken,
                 jwtService.accessTokenExpiresInSeconds(),
                 refreshToken,
-                UserResponse.from(user));
+                UserResponse.from(user, roles));
     }
 
     private GoogleIdToken.Payload verifyIdToken(String rawToken) {

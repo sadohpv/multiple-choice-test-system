@@ -50,12 +50,14 @@ public class AuthService {
         User user = userService.getUserById(rotation.userId())
                 .orElseThrow(() -> new InvalidRefreshTokenException("Người dùng không còn tồn tại"));
 
+        List<String> roles = getRoleNames(user.id());
+        String accessToken = jwtService.createAccessToken(user, roles);
         String accessToken = jwtService.createAccessToken(user, getRoleNames(user.id()));
         return AuthResponse.bearer(
                 accessToken,
                 jwtService.accessTokenExpiresInSeconds(),
                 rotation.refreshToken(),
-                UserResponse.from(user));
+                UserResponse.from(user, roles));
     }
 
     public void logout(LogoutRequest request) {
@@ -63,9 +65,11 @@ public class AuthService {
     }
 
     public UserResponse currentUser(Long userId) {
-        return userService.getUserById(userId)
-                .map(UserResponse::from)
+        User user = userService.getUserById(userId)
                 .orElseThrow(() -> new BadCredentialsException("Phiên đăng nhập không còn hợp lệ"));
+
+        List<String> roles = getRoleNames(user.id());
+        return UserResponse.from(user, roles);
     }
 
     private AuthResponse issueTokens(User user) {
@@ -76,7 +80,7 @@ public class AuthService {
                 accessToken,
                 jwtService.accessTokenExpiresInSeconds(),
                 refreshToken,
-                UserResponse.from(user));
+                UserResponse.from(user, roles));
     }
 
     private List<String> getRoleNames(Long userId) {

@@ -11,6 +11,7 @@ export type AuthUser = {
     email: string;
     createdAt: number | null;
     updatedAt: number | null;
+    roles?: string[];
 };
 
 export type AuthSession = {

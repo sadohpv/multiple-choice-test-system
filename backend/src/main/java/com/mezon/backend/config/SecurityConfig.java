@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/login",
                                 "/api/auth/signup",
+                                "/api/auth/refresh",
                                 "/api/auth/logout",
                                 "/api/auth/google")
                         .permitAll()
@@ -101,6 +102,6 @@ public class SecurityConfig {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         System.out.print(message);
         objectMapper.writeValue(response.getOutputStream(),
-                ApiErrorResponse.of(HttpStatus.BAD_REQUEST.toString(), message));
+                ApiErrorResponse.of(HttpStatus.valueOf(status).toString(), message));
     }
 }

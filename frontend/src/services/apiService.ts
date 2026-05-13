@@ -1,52 +1,48 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { AxiosRequestConfig } from "axios";
 import { axiosInstance } from "./axiosInstance";
 import { register, login, getCurrentUser, logout as apiLogout } from "../features/auth/api/auth";
 import type { AuthSession, AuthUser, LoginFormValues, RegisterFormValues } from "@/features/auth/types";
 import type { ISubjectEntity } from "@/constants/entity";
 
 export const apiService = {
-    // Các hàm helper cơ bản
-    get: async <T = any>(url: string, config?: any): Promise<T> => {
+    get: async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
         const res = await axiosInstance.get<T>(url, config);
         return res.data;
     },
 
-    post: async <T = any>(url: string, data?: any, config?: any): Promise<T> => {
+    post: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
         const res = await axiosInstance.post<T>(url, data, config);
         return res.data;
     },
 
-    put: async <T = any>(url: string, data?: any, config?: any): Promise<T> => {
+    put: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
         const res = await axiosInstance.put<T>(url, data, config);
         return res.data;
     },
 
-    del: async <T = any>(url: string, config?: any): Promise<T> => {
+    del: async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
         const res = await axiosInstance.delete<T>(url, config);
         return res.data;
     },
 
-    // Logic Auth
     register: async (values: RegisterFormValues): Promise<AuthSession> => {
-        return await register(values);
+        return register(values);
     },
 
     login: async (values: LoginFormValues): Promise<AuthSession> => {
-        return await login(values);
+        return login(values);
     },
 
     refreshUser: async (): Promise<AuthUser> => {
-        return await getCurrentUser();
+        return getCurrentUser();
     },
 
     logout: async (): Promise<void> => {
         await apiLogout();
     },
 
-    // Logic Business
     fetchAllSubject: async (): Promise<ISubjectEntity[]> => {
         const res = await axiosInstance.get<ISubjectEntity[]>("/subjects");
-        // Quan trọng: Phải lấy .data vì axios trả về response object
         return res.data;
     },
     createSubject: async ({ subjectName, slug }: { subjectName: string; slug?: string }): Promise<ISubjectEntity[]> => {

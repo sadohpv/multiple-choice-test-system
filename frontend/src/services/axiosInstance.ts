@@ -82,7 +82,17 @@ function shouldRefresh(error: AxiosError, request: RetryableRequestConfig) {
     }
 
     const url = request.url ?? "";
-    return !["/auth/login", "/auth/signup", "/auth/refresh", "/auth/logout"].some(path =>
+    const authEndpointsToSkip = [
+        "/auth/login",
+        "/auth/signup",
+        "/auth/refresh",
+        "/auth/logout",
+        "/auth/google", // Thêm Google login vào danh sách bỏ qua
+        "/auth/forgot-password",
+        "/auth/reset-password",
+    ];
+
+    return !authEndpointsToSkip.some(path =>
         url.includes(path),
     );
 }

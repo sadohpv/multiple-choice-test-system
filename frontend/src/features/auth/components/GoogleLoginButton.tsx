@@ -7,15 +7,44 @@ type GoogleLoginButtonProps = {
     onError?: (error: Error) => void;
 };
 
-declare const google: any;
+type GoogleCredentialResponse = {
+    credential: string;
+};
+
+type GoogleIdInitializeOptions = {
+    client_id: string;
+    callback: (response: GoogleCredentialResponse) => void | Promise<void>;
+    use_fedcm_for_prompt?: boolean;
+};
+
+type GoogleRenderButtonOptions = {
+    type: "standard";
+    theme: "outline";
+    size: "large";
+    width: number;
+    text: "signin_with";
+};
+
+type GoogleIdentityServices = {
+    accounts: {
+        id: {
+            initialize: (options: GoogleIdInitializeOptions) => void;
+            renderButton: (element: HTMLElement, options: GoogleRenderButtonOptions) => void;
+        };
+    };
+};
+
+declare global {
+    interface Window {
+        google?: GoogleIdentityServices;
+    }
+}
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "";
 
 export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
-
-    // Keep callback refs current so the single initialize() always uses latest handlers
     const onSuccessRef = useRef(onSuccess);
     const onErrorRef = useRef(onError);
     onSuccessRef.current = onSuccess;
@@ -29,19 +58,20 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
         const initializeGoogle = () => {
             if (cancelled || !containerRef.current) return;
 
+            const googleIdentity = window.google;
+            if (!googleIdentity) return;
+
             try {
-                google.accounts.id.initialize({
+                googleIdentity.accounts.id.initialize({
                     client_id: GOOGLE_CLIENT_ID,
-                    callback: async (response: { credential: string }) => {
+                    callback: async (response: GoogleCredentialResponse) => {
                         setLoading(true);
                         try {
                             const session = await googleLogin(response.credential);
                             onSuccessRef.current(session);
                         } catch (err) {
                             onErrorRef.current?.(
-                                err instanceof Error
-                                    ? err
-                                    : new Error("Đăng nhập Google thất bại."),
+                                err instanceof Error ? err : new Error("Đăng nhập Google thất bại."),
                             );
                         } finally {
                             setLoading(false);
@@ -50,7 +80,7 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
                     use_fedcm_for_prompt: true,
                 });
 
-                google.accounts.id.renderButton(containerRef.current, {
+                googleIdentity.accounts.id.renderButton(containerRef.current, {
                     type: "standard",
                     theme: "outline",
                     size: "large",
@@ -58,24 +88,23 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
                     text: "signin_with",
                 });
             } catch {
-                // GSI script not loaded yet — handled by the polling below
+                // GSI script not loaded yet; polling below will retry.
             }
         };
 
-        // If GSI script is already loaded, initialize immediately
-        if (typeof google !== "undefined" && google.accounts) {
+        if (window.google?.accounts.id) {
             initializeGoogle();
         } else {
-            // Poll until the async GSI script finishes loading
-            const interval = setInterval(() => {
-                if (typeof google !== "undefined" && google.accounts) {
-                    clearInterval(interval);
+            const interval = window.setInterval(() => {
+                if (window.google?.accounts.id) {
+                    window.clearInterval(interval);
                     initializeGoogle();
                 }
             }, 100);
+
             return () => {
                 cancelled = true;
-                clearInterval(interval);
+                window.clearInterval(interval);
             };
         }
 
@@ -90,10 +119,7 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
 
     return (
         <div className="flex w-full justify-center">
-            <div
-                ref={containerRef}
-                className={loading ? "pointer-events-none opacity-50" : ""}
-            />
+            <div ref={containerRef} className={loading ? "pointer-events-none opacity-50" : ""} />
         </div>
     );
 }

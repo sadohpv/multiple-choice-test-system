@@ -13,6 +13,7 @@ import { MainLayout } from "./layouts/MainLayout";
 import { ApiProvider } from "./lib/Context/ContextApi";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { AuthProvider } from "./lib/Context/ContextAuth";
+import { adminRouteLoader, protectedRouteLoader } from "./lib/loaders/authLoaders";
 import { practiceLoader } from "./lib/loaders/practiceLoader";
 import { AdminRoute } from "@/features/auth/components/AdminRoute";
 import { AdminLayout } from "@/layouts/AdminLayout";
@@ -38,7 +39,7 @@ function App() {
                     element: <HomePage />,
                 },
                 {
-                    loader: practiceLoader,
+                    loader: protectedRouteLoader,
                     element: (
                         <ProtectedRoute>
                             <MainLayout />
@@ -47,6 +48,7 @@ function App() {
                     children: [
                         {
                             path: APP_PATHS.practice,
+                            loader: practiceLoader,
                             element: <PracticePage />,
                         },
                         {
@@ -73,6 +75,7 @@ function App() {
                 },
                 {
                     path: "/admin",
+                    loader: adminRouteLoader,
                     element: (
                         <AdminRoute>
                             <AdminLayout />

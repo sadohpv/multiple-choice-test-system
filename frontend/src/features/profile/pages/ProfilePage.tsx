@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
@@ -13,8 +13,6 @@ export function ProfilePage() {
     const { refreshUser } = useApi();
     const { user } = useAuth();
     const [profile, setProfile] = useState<AuthUser | null>(user);
-    const [error, setError] = useState("");
-
     const [displayname, setDisplayname] = useState(user?.displayname ?? "");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -22,27 +20,6 @@ export function ProfilePage() {
     const [passwordStatus, setPasswordStatus] = useState<FormStatus>(idleStatus);
     const [savingProfile, setSavingProfile] = useState(false);
     const [savingPassword, setSavingPassword] = useState(false);
-
-    useEffect(() => {
-        let mounted = true;
-
-        refreshUser()
-            .then(nextUser => {
-                if (mounted) {
-                    setProfile(nextUser);
-                    setDisplayname(nextUser.displayname ?? "");
-                }
-            })
-            .catch(error => {
-                if (mounted) {
-                    setError(error instanceof Error ? error.message : "Không thể tải profile.");
-                }
-            });
-
-        return () => {
-            mounted = false;
-        };
-    }, [refreshUser]);
 
     const handleUpdateProfile = async (e: FormEvent) => {
         e.preventDefault();
@@ -56,6 +33,7 @@ export function ProfilePage() {
             await axiosInstance.put("/auth/me/profile", { displayname: displayname.trim() });
             const updated = await refreshUser();
             setProfile(updated);
+            setDisplayname(updated.displayname ?? "");
             setProfileStatus({ message: "Cập nhật thành công!", tone: "success" });
         } catch (err) {
             setProfileStatus({
@@ -96,20 +74,14 @@ export function ProfilePage() {
 
     return (
         <main className="mx-auto max-w-5xl px-5 py-10 sm:px-6">
-            {/* Page header */}
             <div className="mb-8 animate-fade-up">
                 <h1 className="text-2xl font-bold text-neutral-900">Profile</h1>
                 <p className="mt-1 text-sm text-neutral-400">Thông tin tài khoản đang đăng nhập.</p>
             </div>
 
-            {error && (
-                <Alert className="mb-6 max-w-2xl" tone="error">{error}</Alert>
-            )}
-
-            <div className="grid gap-5 max-w-2xl">
-                {/* Info card */}
-                <section className="rounded-xl border border-neutral-200 bg-white p-6 animate-fade-up delay-100">
-                    <h2 className="mb-4 text-sm font-semibold text-neutral-500 uppercase tracking-wide">
+            <div className="grid max-w-2xl gap-5">
+                <section className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-6 delay-100">
+                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
                         Thông tin tài khoản
                     </h2>
                     <dl className="grid gap-4 sm:grid-cols-2">
@@ -120,9 +92,8 @@ export function ProfilePage() {
                     </dl>
                 </section>
 
-                {/* Update display name */}
-                <section className="rounded-xl border border-neutral-200 bg-white p-6 animate-fade-up delay-200">
-                    <h2 className="mb-4 text-sm font-semibold text-neutral-500 uppercase tracking-wide">
+                <section className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-6 delay-200">
+                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
                         Cập nhật thông tin
                     </h2>
                     <form className="space-y-4" onSubmit={handleUpdateProfile}>
@@ -142,9 +113,8 @@ export function ProfilePage() {
                     </form>
                 </section>
 
-                {/* Change password */}
-                <section className="rounded-xl border border-neutral-200 bg-white p-6 animate-fade-up delay-300">
-                    <h2 className="mb-4 text-sm font-semibold text-neutral-500 uppercase tracking-wide">
+                <section className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-6 delay-300">
+                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
                         Đổi mật khẩu
                     </h2>
                     <form className="space-y-4" onSubmit={handleChangePassword}>
@@ -162,7 +132,7 @@ export function ProfilePage() {
                             type="password"
                             value={newPassword}
                             onChange={e => setNewPassword(e.target.value)}
-                            placeholder="••••••••  (ít nhất 8 ký tự)"
+                            placeholder="•••••••• (ít nhất 8 ký tự)"
                         />
                         {passwordStatus.tone !== "idle" && (
                             <Alert tone={passwordStatus.tone}>{passwordStatus.message}</Alert>

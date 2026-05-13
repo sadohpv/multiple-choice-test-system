@@ -50,7 +50,7 @@ export function LoginPage() {
 
         try {
             await login(payload);
-            navigate(resolveRedirectPath(location.state), { replace: true });
+            navigate(resolveRedirectPath(location.state, location.search), { replace: true });
         } catch (error) {
             setStatus({
                 message: error instanceof Error ? error.message : "Đăng nhập không thành công.",
@@ -123,7 +123,7 @@ export function LoginPage() {
                     </div>
 
                     <GoogleLoginButton
-                        onSuccess={() => navigate(resolveRedirectPath(location.state), { replace: true })}
+                        onSuccess={() => navigate(resolveRedirectPath(location.state, location.search), { replace: true })}
                         onError={err => setStatus({ message: err.message, tone: "error" })}
                     />
 
@@ -136,7 +136,12 @@ export function LoginPage() {
     );
 }
 
-function resolveRedirectPath(state: unknown) {
+function resolveRedirectPath(state: unknown, search: string) {
+    const redirectPath = new URLSearchParams(search).get("redirect");
+    if (redirectPath) {
+        return redirectPath;
+    }
+
     if (
         state &&
         typeof state === "object" &&

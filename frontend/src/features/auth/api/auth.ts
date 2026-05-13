@@ -1,4 +1,5 @@
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
+import { API_BASE_URL } from "@/constants/config";
 import { axiosInstance } from "@/services/axiosInstance";
 import type {
     AuthMessageResponse,
@@ -9,8 +10,10 @@ import type {
 } from "../types";
 import {
     clearStoredAuthSession,
+    isAccessTokenExpired,
     readStoredAuthSession,
     storeAuthSession,
+    updateStoredAuthUser,
 } from "../utils/session";
 import { extractErrorMessage } from "../utils/validation";
 
@@ -21,6 +24,8 @@ type RegisterPayload = {
     password: string;
     email: string;
 };
+
+let syncSessionPromise: Promise<AuthSession> | null = null;
 
 function resolveApiError(error: unknown, fallback: string) {
     if (error instanceof AxiosError) {
@@ -84,6 +89,7 @@ export async function logout() {
 export async function getCurrentUser() {
     try {
         const response = await axiosInstance.get<AuthUser>("/auth/me");
+        updateStoredAuthUser(response.data);
         return response.data;
     } catch (error) {
         throw new Error(resolveApiError(error, "Không thể tải thông tin tài khoản."));
@@ -98,4 +104,55 @@ export async function googleLogin(idToken: string) {
     } catch (error) {
         throw new Error(resolveApiError(error, "Đăng nhập bằng Google không thành công."));
     }
+}
+
+export async function refreshSession(refreshToken: string) {
+    try {
+        const response = await axios.post<AuthSession>(
+            `${API_BASE_URL}/auth/refresh`,
+            { refreshToken },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+        );
+        storeAuthSession(response.data);
+        return response.data;
+    } catch (error) {
+        throw new Error(resolveApiError(error, "Phiên đăng nhập đã hết hạn."));
+    }
+}
+
+export async function syncAuthSession() {
+    syncSessionPromise ??= (async () => {
+        const storedSession = readStoredAuthSession();
+        if (!storedSession?.accessToken || !storedSession.refreshToken) {
+            clearStoredAuthSession();
+            throw new Error("Phiên đăng nhập không còn hợp lệ.");
+        }
+
+        let nextSession = storedSession;
+
+        if (isAccessTokenExpired(storedSession.accessToken)) {
+            try {
+                nextSession = await refreshSession(storedSession.refreshToken);
+            } catch (error) {
+                clearStoredAuthSession();
+                throw error instanceof Error ? error : new Error("Phiên đăng nhập đã hết hạn.");
+            }
+        }
+
+        const user = await getCurrentUser();
+        const syncedSession: AuthSession = {
+            ...nextSession,
+            user,
+        };
+        storeAuthSession(syncedSession);
+        return syncedSession;
+    })().finally(() => {
+        syncSessionPromise = null;
+    });
+
+    return syncSessionPromise;
 }

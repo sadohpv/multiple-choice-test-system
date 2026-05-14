@@ -10,7 +10,6 @@ import { PracticePage } from "@/features/user-flow/pages/PracticePage";
 import { ResultsPage } from "@/features/user-flow/pages/ResultsPage";
 import { publicRoutes } from "./routes";
 import { MainLayout } from "./layouts/MainLayout";
-import { ApiProvider } from "./lib/Context/ContextApi";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { AuthProvider } from "./lib/Context/ContextAuth";
 import { adminRouteLoader, protectedRouteLoader } from "./lib/loaders/authLoaders";
@@ -25,13 +24,11 @@ function App() {
     const router = createBrowserRouter([
         {
             element: (
-                <ApiProvider>
-                    <AuthProvider>
-                        <ModalProvider>
-                            <Outlet />
-                        </ModalProvider>
-                    </AuthProvider>
-                </ApiProvider>
+                <AuthProvider>
+                    <ModalProvider>
+                        <Outlet />
+                    </ModalProvider>
+                </AuthProvider>
             ),
             children: [
                 {

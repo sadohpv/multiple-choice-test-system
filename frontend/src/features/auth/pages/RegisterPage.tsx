@@ -7,8 +7,8 @@ import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
 import { GoogleLoginButton } from "../components/GoogleLoginButton";
 import type { FieldErrors, FormStatus, RegisterFormValues } from "../types";
-import { validateRegister } from "../utils/validation";
-import { useApi } from "@/lib/Context/useAPI";
+import { validateRegister } from "../lib/validation";
+import { apiService } from "@/services/apiService";
 
 const initialValues: RegisterFormValues = {
     username: "",
@@ -24,7 +24,6 @@ const idleStatus: FormStatus = {
 
 export function RegisterPage() {
     const navigate = useNavigate();
-    const { register } = useApi();
     const [values, setValues] = useState<RegisterFormValues>(initialValues);
     const [errors, setErrors] = useState<FieldErrors<RegisterFormValues>>({});
     const [status, setStatus] = useState<FormStatus>(idleStatus);
@@ -70,7 +69,7 @@ export function RegisterPage() {
         setStatus(idleStatus);
 
         try {
-            await register(payloadValues);
+            await apiService.register(payloadValues);
             navigate(APP_PATHS.profile, { replace: true });
         } catch (error) {
             setStatus({

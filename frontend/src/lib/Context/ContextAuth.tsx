@@ -1,5 +1,5 @@
 import type { AuthSession, AuthUser } from "@/features/auth/types";
-import { AUTH_SESSION_CHANGED_EVENT, readStoredAuthSession } from "@/features/auth/utils/session";
+import { AUTH_SESSION_CHANGED_EVENT, readStoredAuthSession } from "@/lib/auth/session";
 import { createContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 

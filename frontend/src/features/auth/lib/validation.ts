@@ -3,26 +3,6 @@ import type { FieldErrors, LoginFormValues, RegisterFormValues } from "../types"
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const usernamePattern = /^[a-zA-Z0-9._-]{3,20}$/;
 
-export function extractErrorMessage(payload: unknown, fallback: string) {
-    if (typeof payload === "string" && payload.trim()) {
-        return payload;
-    }
-
-    if (payload && typeof payload === "object") {
-        const objectPayload = payload as Record<string, unknown>;
-
-        if (typeof objectPayload.message === "string" && objectPayload.message.trim()) {
-            return objectPayload.message;
-        }
-
-        if (typeof objectPayload.error === "string" && objectPayload.error.trim()) {
-            return objectPayload.error;
-        }
-    }
-
-    return fallback;
-}
-
 export function validateLogin(values: LoginFormValues) {
     const errors: FieldErrors<LoginFormValues> = {};
 

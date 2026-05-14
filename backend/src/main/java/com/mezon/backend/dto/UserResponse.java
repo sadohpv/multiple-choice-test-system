@@ -1,6 +1,7 @@
 package com.mezon.backend.dto;
 
 import com.mezon.backend.entity.User;
+import java.util.Collections;
 import java.util.List;
 
 public record UserResponse(
@@ -21,7 +22,10 @@ public record UserResponse(
                 user.email(),
                 user.createdAt(),
                 user.updatedAt(),
-                roles // gán roles cho object trả về
-        );
+                roles);
+    }
+
+    public static UserResponse from(User user) {
+        return from(user, Collections.emptyList());
     }
 }

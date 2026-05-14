@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import type { RoleEntity } from "@/constants/entity";
-import { useApi } from "@/lib/Context/useAPI";
+import { apiService } from "@/services/apiService";
 
 type RoleFormState = {
     roleName: string;
@@ -19,7 +19,6 @@ const EMPTY_FORM: RoleFormState = {
 };
 
 export function RoleManagementPage() {
-    const api = useApi();
     const [roles, setRoles] = useState<RoleEntity[]>([]);
     const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
     const [form, setForm] = useState<RoleFormState>(EMPTY_FORM);
@@ -33,9 +32,26 @@ export function RoleManagementPage() {
         [roles, selectedRoleId],
     );
 
+    const loadRoles = useCallback(async () => {
+        setIsLoading(true);
+        setError("");
+        try {
+            const data = await apiService.get<RoleEntity[]>("/roles");
+            setRoles(data);
+
+            if (!selectedRoleId && data.length > 0) {
+                setSelectedRoleId(data[0].id);
+            }
+        } catch (loadError) {
+            setError(loadError instanceof Error ? loadError.message : "Không thể tải danh sách roles.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [selectedRoleId]);
+
     useEffect(() => {
         void loadRoles();
-    }, []);
+    }, [loadRoles]);
 
     useEffect(() => {
         if (!selectedRole) {
@@ -50,23 +66,6 @@ export function RoleManagementPage() {
                 typeof selectedRole.roleLevel === "number" ? String(selectedRole.roleLevel) : "",
         });
     }, [selectedRole]);
-
-    const loadRoles = async () => {
-        setIsLoading(true);
-        setError("");
-        try {
-            const data = await api.get<RoleEntity[]>("/roles");
-            setRoles(data);
-
-            if (!selectedRoleId && data.length > 0) {
-                setSelectedRoleId(data[0].id);
-            }
-        } catch (loadError) {
-            setError(loadError instanceof Error ? loadError.message : "Không thể tải danh sách roles.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const handleSelectRole = (id: number) => {
         setSelectedRoleId(id);
@@ -94,7 +93,7 @@ export function RoleManagementPage() {
         setError("");
         setSuccess("");
         try {
-            await api.put(`/roles/${selectedRole.id}`, {
+            await apiService.put(`/roles/${selectedRole.id}`, {
                 roleName: form.roleName.trim(),
                 description: form.description.trim(),
                 roleLevel: parsedRoleLevel,

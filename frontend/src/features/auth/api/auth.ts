@@ -1,18 +1,19 @@
-import { AxiosError } from "axios";
 import { axiosInstance } from "@/services/axiosInstance";
+import { logoutAuthSession, refreshAuthSession } from "@/services/authSessionService";
+import { resolveApiError } from "@/lib/api/errors";
+import {
+    clearStoredAuthSession,
+    isAccessTokenExpired,
+    readStoredAuthSession,
+    storeAuthSession,
+    updateStoredAuthUser,
+} from "@/lib/auth/session";
 import type {
-    AuthMessageResponse,
     AuthSession,
     AuthUser,
     LoginFormValues,
     RegisterFormValues,
 } from "../types";
-import {
-    clearStoredAuthSession,
-    readStoredAuthSession,
-    storeAuthSession,
-} from "../utils/session";
-import { extractErrorMessage } from "../utils/validation";
 
 type RegisterPayload = {
     username: string;
@@ -22,17 +23,7 @@ type RegisterPayload = {
     email: string;
 };
 
-function resolveApiError(error: unknown, fallback: string) {
-    if (error instanceof AxiosError) {
-        return extractErrorMessage(error.response?.data, fallback);
-    }
-
-    if (error instanceof Error && error.message) {
-        return error.message;
-    }
-
-    return fallback;
-}
+let syncSessionPromise: Promise<AuthSession> | null = null;
 
 export async function login(values: LoginFormValues) {
     try {
@@ -63,27 +54,13 @@ export async function register(values: RegisterFormValues) {
 }
 
 export async function logout() {
-    const session = readStoredAuthSession();
-
-    try {
-        if (!session?.refreshToken) {
-            return { message: "Đăng xuất thành công." } satisfies AuthMessageResponse;
-        }
-
-        const response = await axiosInstance.post<AuthMessageResponse>("/auth/logout", {
-            refreshToken: session.refreshToken,
-        });
-        return response.data;
-    } catch (error) {
-        throw new Error(resolveApiError(error, "Đăng xuất không thành công."));
-    } finally {
-        clearStoredAuthSession();
-    }
+    return logoutAuthSession();
 }
 
 export async function getCurrentUser() {
     try {
         const response = await axiosInstance.get<AuthUser>("/auth/me");
+        updateStoredAuthUser(response.data);
         return response.data;
     } catch (error) {
         throw new Error(resolveApiError(error, "Không thể tải thông tin tài khoản."));
@@ -98,4 +75,41 @@ export async function googleLogin(idToken: string) {
     } catch (error) {
         throw new Error(resolveApiError(error, "Đăng nhập bằng Google không thành công."));
     }
+}
+
+export async function refreshSession(refreshToken: string) {
+    return refreshAuthSession(refreshToken);
+}
+
+export async function syncAuthSession() {
+    syncSessionPromise ??= (async () => {
+        const storedSession = readStoredAuthSession();
+        if (!storedSession?.accessToken || !storedSession.refreshToken) {
+            clearStoredAuthSession();
+            throw new Error("Phiên đăng nhập không còn hợp lệ.");
+        }
+
+        let nextSession = storedSession;
+
+        if (isAccessTokenExpired(storedSession.accessToken)) {
+            try {
+                nextSession = await refreshSession(storedSession.refreshToken);
+            } catch (error) {
+                clearStoredAuthSession();
+                throw error instanceof Error ? error : new Error("Phiên đăng nhập đã hết hạn.");
+            }
+        }
+
+        const user = await getCurrentUser();
+        const syncedSession: AuthSession = {
+            ...nextSession,
+            user,
+        };
+        storeAuthSession(syncedSession);
+        return syncedSession;
+    })().finally(() => {
+        syncSessionPromise = null;
+    });
+
+    return syncSessionPromise;
 }

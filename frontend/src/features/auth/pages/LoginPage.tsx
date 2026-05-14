@@ -7,8 +7,8 @@ import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
 import { GoogleLoginButton } from "../components/GoogleLoginButton";
 import type { FormStatus, LoginFormValues } from "../types";
-import { validateLogin } from "../utils/validation";
-import { useApi } from "@/lib/Context/useAPI";
+import { validateLogin } from "../lib/validation";
+import { apiService } from "@/services/apiService";
 
 const initialValues: LoginFormValues = {
     identity: "",
@@ -23,7 +23,6 @@ const idleStatus: FormStatus = {
 export function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login } = useApi();
     const [values, setValues] = useState<LoginFormValues>(initialValues);
     const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
     const [status, setStatus] = useState<FormStatus>(idleStatus);
@@ -49,8 +48,8 @@ export function LoginPage() {
         setStatus(idleStatus);
 
         try {
-            await login(payload);
-            navigate(resolveRedirectPath(location.state), { replace: true });
+            await apiService.login(payload);
+            navigate(resolveRedirectPath(location.state, location.search), { replace: true });
         } catch (error) {
             setStatus({
                 message: error instanceof Error ? error.message : "Đăng nhập không thành công.",
@@ -123,7 +122,7 @@ export function LoginPage() {
                     </div>
 
                     <GoogleLoginButton
-                        onSuccess={() => navigate(resolveRedirectPath(location.state), { replace: true })}
+                        onSuccess={() => navigate(resolveRedirectPath(location.state, location.search), { replace: true })}
                         onError={err => setStatus({ message: err.message, tone: "error" })}
                     />
 
@@ -136,7 +135,12 @@ export function LoginPage() {
     );
 }
 
-function resolveRedirectPath(state: unknown) {
+function resolveRedirectPath(state: unknown, search: string) {
+    const redirectPath = new URLSearchParams(search).get("redirect");
+    if (redirectPath) {
+        return redirectPath;
+    }
+
     if (
         state &&
         typeof state === "object" &&

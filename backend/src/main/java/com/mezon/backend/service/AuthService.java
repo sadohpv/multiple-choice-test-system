@@ -52,7 +52,6 @@ public class AuthService {
 
         List<String> roles = getRoleNames(user.id());
         String accessToken = jwtService.createAccessToken(user, roles);
-        String accessToken = jwtService.createAccessToken(user, getRoleNames(user.id()));
         return AuthResponse.bearer(
                 accessToken,
                 jwtService.accessTokenExpiresInSeconds(),

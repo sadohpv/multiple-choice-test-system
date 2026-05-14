@@ -1,21 +1,19 @@
-import axios, { AxiosError } from "axios";
-import { API_BASE_URL } from "@/constants/config";
 import { axiosInstance } from "@/services/axiosInstance";
-import type {
-    AuthMessageResponse,
-    AuthSession,
-    AuthUser,
-    LoginFormValues,
-    RegisterFormValues,
-} from "../types";
+import { logoutAuthSession, refreshAuthSession } from "@/services/authSessionService";
+import { resolveApiError } from "@/lib/api/errors";
 import {
     clearStoredAuthSession,
     isAccessTokenExpired,
     readStoredAuthSession,
     storeAuthSession,
     updateStoredAuthUser,
-} from "../utils/session";
-import { extractErrorMessage } from "../utils/validation";
+} from "@/lib/auth/session";
+import type {
+    AuthSession,
+    AuthUser,
+    LoginFormValues,
+    RegisterFormValues,
+} from "../types";
 
 type RegisterPayload = {
     username: string;
@@ -26,18 +24,6 @@ type RegisterPayload = {
 };
 
 let syncSessionPromise: Promise<AuthSession> | null = null;
-
-function resolveApiError(error: unknown, fallback: string) {
-    if (error instanceof AxiosError) {
-        return extractErrorMessage(error.response?.data, fallback);
-    }
-
-    if (error instanceof Error && error.message) {
-        return error.message;
-    }
-
-    return fallback;
-}
 
 export async function login(values: LoginFormValues) {
     try {
@@ -68,22 +54,7 @@ export async function register(values: RegisterFormValues) {
 }
 
 export async function logout() {
-    const session = readStoredAuthSession();
-
-    try {
-        if (!session?.refreshToken) {
-            return { message: "Đăng xuất thành công." } satisfies AuthMessageResponse;
-        }
-
-        const response = await axiosInstance.post<AuthMessageResponse>("/auth/logout", {
-            refreshToken: session.refreshToken,
-        });
-        return response.data;
-    } catch (error) {
-        throw new Error(resolveApiError(error, "Đăng xuất không thành công."));
-    } finally {
-        clearStoredAuthSession();
-    }
+    return logoutAuthSession();
 }
 
 export async function getCurrentUser() {
@@ -107,21 +78,7 @@ export async function googleLogin(idToken: string) {
 }
 
 export async function refreshSession(refreshToken: string) {
-    try {
-        const response = await axios.post<AuthSession>(
-            `${API_BASE_URL}/auth/refresh`,
-            { refreshToken },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            },
-        );
-        storeAuthSession(response.data);
-        return response.data;
-    } catch (error) {
-        throw new Error(resolveApiError(error, "Phiên đăng nhập đã hết hạn."));
-    }
+    return refreshAuthSession(refreshToken);
 }
 
 export async function syncAuthSession() {

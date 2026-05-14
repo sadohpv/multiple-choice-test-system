@@ -1,6 +1,6 @@
 import { APP_PATHS, AUTH_PATHS } from "@/constants/path";
 import { syncAuthSession } from "@/features/auth/api/auth";
-import { readStoredAuthSession } from "@/features/auth/utils/session";
+import { readStoredAuthSession } from "@/lib/auth/session";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirect } from "react-router-dom";
 

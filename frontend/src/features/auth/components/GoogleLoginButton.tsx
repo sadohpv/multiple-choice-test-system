@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { GOOGLE_CLIENT_ID, GOOGLE_LOGIN_ENABLED } from "@/constants/config";
 import { googleLogin } from "../api/auth";
 import type { AuthSession } from "../types";
 
@@ -40,18 +41,70 @@ type GoogleLoginListener = {
     setLoading: (loading: boolean) => void;
 };
 
+type GoogleIdentityState = {
+    activeListener: GoogleLoginListener | null;
+    initialized: boolean;
+    scriptPromise: Promise<void> | null;
+};
+
 declare global {
     interface Window {
+        __mezonGoogleIdentityState?: GoogleIdentityState;
         google?: GoogleIdentityServices;
     }
 }
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "";
-let isGoogleIdentityInitialized = false;
-let activeGoogleLoginListener: GoogleLoginListener | null = null;
+const GOOGLE_IDENTITY_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
+
+function getGoogleIdentityState() {
+    window.__mezonGoogleIdentityState ??= {
+        activeListener: null,
+        initialized: false,
+        scriptPromise: null,
+    };
+
+    return window.__mezonGoogleIdentityState;
+}
+
+function loadGoogleIdentityScript() {
+    if (window.google?.accounts.id) {
+        return Promise.resolve();
+    }
+
+    const state = getGoogleIdentityState();
+    if (state.scriptPromise) {
+        return state.scriptPromise;
+    }
+
+    state.scriptPromise = new Promise<void>((resolve, reject) => {
+        const existingScript = document.querySelector<HTMLScriptElement>(
+            `script[src="${GOOGLE_IDENTITY_SCRIPT_SRC}"]`,
+        );
+
+        const script = existingScript ?? document.createElement("script");
+
+        const handleLoad = () => resolve();
+        const handleError = () => reject(new Error("Failed to load Google Identity Services."));
+
+        script.addEventListener("load", handleLoad, { once: true });
+        script.addEventListener("error", handleError, { once: true });
+
+        if (!existingScript) {
+            script.src = GOOGLE_IDENTITY_SCRIPT_SRC;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+    }).catch((error) => {
+        state.scriptPromise = null;
+        throw error;
+    });
+
+    return state.scriptPromise;
+}
 
 async function handleGoogleCredentialResponse(response: GoogleCredentialResponse) {
-    const listener = activeGoogleLoginListener;
+    const listener = getGoogleIdentityState().activeListener;
     if (!listener) {
         return;
     }
@@ -79,7 +132,7 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
     }, [onSuccess, onError]);
 
     useEffect(() => {
-        if (!GOOGLE_CLIENT_ID || !containerRef.current) {
+        if (!GOOGLE_LOGIN_ENABLED || !containerRef.current) {
             return;
         }
 
@@ -103,70 +156,46 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
             },
         };
 
-        activeGoogleLoginListener = listener;
+        const state = getGoogleIdentityState();
+        state.activeListener = listener;
 
-        const initializeGoogle = () => {
-            if (cancelled || !containerRef.current) {
-                return;
-            }
+        void loadGoogleIdentityScript()
+            .then(() => {
+                if (cancelled || !containerRef.current || !window.google?.accounts.id) {
+                    return;
+                }
 
-            const googleIdentity = window.google;
-            if (!googleIdentity) {
-                return;
-            }
-
-            try {
-                if (!isGoogleIdentityInitialized) {
-                    googleIdentity.accounts.id.initialize({
+                if (!state.initialized) {
+                    window.google.accounts.id.initialize({
                         client_id: GOOGLE_CLIENT_ID,
                         callback: handleGoogleCredentialResponse,
                         use_fedcm_for_prompt: true,
                     });
-                    isGoogleIdentityInitialized = true;
+                    state.initialized = true;
                 }
 
                 containerRef.current.replaceChildren();
-
-                googleIdentity.accounts.id.renderButton(containerRef.current, {
+                window.google.accounts.id.renderButton(containerRef.current, {
                     type: "standard",
                     theme: "outline",
                     size: "large",
                     width: containerRef.current.offsetWidth || 320,
                     text: "signin_with",
                 });
-            } catch {
-                // GSI script not loaded yet; polling below will retry.
-            }
-        };
-
-        if (window.google?.accounts.id) {
-            initializeGoogle();
-        } else {
-            const interval = window.setInterval(() => {
-                if (window.google?.accounts.id) {
-                    window.clearInterval(interval);
-                    initializeGoogle();
-                }
-            }, 100);
-
-            return () => {
-                cancelled = true;
-                if (activeGoogleLoginListener === listener) {
-                    activeGoogleLoginListener = null;
-                }
-                window.clearInterval(interval);
-            };
-        }
+            })
+            .catch((error) => {
+                listener.onError?.(error instanceof Error ? error : new Error("Khong the tai Google Sign-In."));
+            });
 
         return () => {
             cancelled = true;
-            if (activeGoogleLoginListener === listener) {
-                activeGoogleLoginListener = null;
+            if (state.activeListener === listener) {
+                state.activeListener = null;
             }
         };
     }, []);
 
-    if (!GOOGLE_CLIENT_ID) {
+    if (!GOOGLE_LOGIN_ENABLED) {
         return null;
     }
 

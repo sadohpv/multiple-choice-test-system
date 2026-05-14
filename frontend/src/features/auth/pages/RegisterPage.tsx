@@ -7,7 +7,7 @@ import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
 import { GoogleLoginButton } from "../components/GoogleLoginButton";
 import type { FieldErrors, FormStatus, RegisterFormValues } from "../types";
-import { validateRegister } from "../utils/validation";
+import { validateRegister } from "../lib/validation";
 import { apiService } from "@/services/apiService";
 
 const initialValues: RegisterFormValues = {

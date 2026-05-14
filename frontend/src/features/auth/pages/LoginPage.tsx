@@ -7,7 +7,7 @@ import { AuthField } from "../components/AuthField";
 import { FormStatusAlert } from "../components/FormStatusAlert";
 import { GoogleLoginButton } from "../components/GoogleLoginButton";
 import type { FormStatus, LoginFormValues } from "../types";
-import { validateLogin } from "../utils/validation";
+import { validateLogin } from "../lib/validation";
 import { apiService } from "@/services/apiService";
 
 const initialValues: LoginFormValues = {

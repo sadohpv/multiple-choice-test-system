@@ -8,7 +8,7 @@ import { FormStatusAlert } from "../components/FormStatusAlert";
 import { GoogleLoginButton } from "../components/GoogleLoginButton";
 import type { FormStatus, LoginFormValues } from "../types";
 import { validateLogin } from "../utils/validation";
-import { useApi } from "@/lib/Context/useAPI";
+import { apiService } from "@/services/apiService";
 
 const initialValues: LoginFormValues = {
     identity: "",
@@ -23,7 +23,6 @@ const idleStatus: FormStatus = {
 export function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login } = useApi();
     const [values, setValues] = useState<LoginFormValues>(initialValues);
     const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
     const [status, setStatus] = useState<FormStatus>(idleStatus);
@@ -49,7 +48,7 @@ export function LoginPage() {
         setStatus(idleStatus);
 
         try {
-            await login(payload);
+            await apiService.login(payload);
             navigate(resolveRedirectPath(location.state, location.search), { replace: true });
         } catch (error) {
             setStatus({

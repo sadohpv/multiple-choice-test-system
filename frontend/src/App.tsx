@@ -14,6 +14,7 @@ import { AuthLayout } from "./layouts/AuthLayout";
 import { AuthProvider } from "./lib/Context/ContextAuth";
 import { adminRouteLoader, protectedRouteLoader } from "./lib/loaders/authLoaders";
 import { practiceLoader } from "./lib/loaders/practiceLoader";
+import { rolesLoader } from "./lib/loaders/rolesLoader";
 import { AdminRoute } from "@/features/auth/components/AdminRoute";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { UserManagementPage } from "@/features/admin/pages/UserManagementPage";
@@ -95,6 +96,7 @@ function App() {
                         },
                         {
                             path: "roles",
+                            loader: rolesLoader,
                             element: <RoleManagementPage />,
                         },
                     ],

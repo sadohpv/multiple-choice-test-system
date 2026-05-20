@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import type { RoleEntity } from "@/constants/entity";
 import { apiService } from "@/services/apiService";
+import { useRolesStore } from "@/lib/store/roles.store";
 
 type RoleFormState = {
     roleName: string;
@@ -19,10 +20,11 @@ const EMPTY_FORM: RoleFormState = {
 };
 
 export function RoleManagementPage() {
-    const [roles, setRoles] = useState<RoleEntity[]>([]);
+    const roles = useRolesStore((state) => state.roles);
+    const setRoles = useRolesStore((state) => state.setRoles);
     const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
     const [form, setForm] = useState<RoleFormState>(EMPTY_FORM);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");

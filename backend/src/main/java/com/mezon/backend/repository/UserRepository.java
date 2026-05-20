@@ -1,15 +1,16 @@
 package com.mezon.backend.repository;
 
-import com.mezon.backend.entity.User;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import com.mezon.backend.entity.User;
 
 @Repository
 public class UserRepository {
@@ -61,7 +62,7 @@ public class UserRepository {
         String sql = """
                 INSERT INTO "Users" (username, displayname, avatar, password, email, "createdAt", "updatedAt")
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                RETURNING id, username, displayname, avatar, password, email, "createdAt", "updatedAt"
+                RETURNING id, username, displayname, avatar, "password", email, "createdAt", "updatedAt"
                 """;
 
         return jdbcTemplate.queryForObject(

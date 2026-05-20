@@ -4,8 +4,8 @@ import { FlowShell } from "@/features/user-flow/components/FlowShell";
 import { useSubjectsStore } from "@/lib/store/subjects.store";
 import { useModal } from "react-modal-hook";
 import CreateSubjectModal from "./CreateSubjectModal";
-import { TrashIcon } from "@/components/Icons";
 import { apiService } from "@/services/apiService";
+import { Icons } from "@/components/Icons";
 
 export function SubjectPage() {
     const subjects = useSubjectsStore(state => state.subjects);
@@ -66,7 +66,7 @@ export function SubjectPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleDeleteSubject(subject.id)}>
-                                <TrashIcon className="size-5!" />
+                                <Icons.TrashIcon className="size-5!" />
                             </Button>
                         </div>
                     </div>

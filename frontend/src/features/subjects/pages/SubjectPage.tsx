@@ -6,13 +6,18 @@ import { useModal } from "react-modal-hook";
 import CreateSubjectModal from "./CreateSubjectModal";
 import { apiService } from "@/services/apiService";
 import { Icons } from "@/components/Icons";
+import CreateQuestionModal from "./CreatQuestionModal";
 
 export function SubjectPage() {
     const subjects = useSubjectsStore(state => state.subjects);
 
-    const [openModalCreate, closeModalCreate] = useModal(() => {
-        return <CreateSubjectModal onClose={closeModalCreate} />;
+    const [openModalCreateSubject, closeModalCreateSubject] = useModal(() => {
+        return <CreateSubjectModal onClose={closeModalCreateSubject} />;
     }, []);
+
+    const [openModalCreateQuestion, closeModalCreateQuestion] = useModal(() => {
+        return <CreateQuestionModal onClose={closeModalCreateQuestion} subjects={subjects} />;
+    }, [subjects]);
 
     const handleDeleteSubject = async (id: string) => {
         await apiService.deleteSubject({
@@ -26,12 +31,20 @@ export function SubjectPage() {
             title="Subjects">
             <div className="flex items-center justify-between w-full pb-4">
                 <Input className="w-1/3" placeholder="Enter subject name or slug..." />
-                <Button
-                    onClick={openModalCreate}
-                    className="cursor-pointer bg-green-500 h-10 px-2 flex items-center justify-center"
-                    aria-label="Add subject">
-                    Create New Subject
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={openModalCreateQuestion}
+                        className="cursor-pointer bg-green-500 h-10 px-2 flex items-center justify-center"
+                        aria-label="Add subject">
+                        Create New Question
+                    </Button>
+                    <Button
+                        onClick={openModalCreateSubject}
+                        className="cursor-pointer bg-green-500 h-10 px-2 flex items-center justify-center"
+                        aria-label="Add subject">
+                        Create New Subject
+                    </Button>
+                </div>
             </div>
             <div className="flex flex-col gap-3">
                 {subjects.map(subject => (

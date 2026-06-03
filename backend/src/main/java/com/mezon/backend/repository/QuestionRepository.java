@@ -1,7 +1,12 @@
 package com.mezon.backend.repository;
+
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,13 +15,18 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mezon.backend.dto.AnswerFullResponse;
 import com.mezon.backend.dto.QuestionRequest;
+import com.mezon.backend.dto.QuestionResponse;
 import com.mezon.backend.entity.Question;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mezon.backend.dto.QuestionFullResponse;
 
 @Repository
 public class QuestionRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    ObjectMapper objectMapper = new ObjectMapper();
 
     public QuestionRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -36,10 +46,51 @@ public class QuestionRepository {
         int val = rs.getInt(column);
         return rs.wasNull() ? null : val;
     }
-
     public List<Question> findAll() {
         String sql = "SELECT * FROM \"Questions\"";
         return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public List<QuestionFullResponse> findAllBySubjectId(Long subjectId) {
+        String sql = "SELECT * FROM public.view_question_answers WHERE subject_id = ?;";
+
+        return jdbcTemplate.query(sql, rs -> {
+            Map<Long, QuestionFullResponse> questionMap = new LinkedHashMap<>();
+
+            while (rs.next()) {
+                Long questionId = rs.getLong("question_id");
+
+                QuestionFullResponse question = questionMap.get(questionId);
+                if (question == null) {
+                    question = new QuestionFullResponse();
+                    question.setId(questionId);
+                    
+                    question.setContent(rs.getString("question_content"));
+                    question.setDescription(rs.getString("question_description"));
+                    question.setDifficult(rs.getInt("question_difficult"));
+                    question.setType(rs.getString("question_type") != null ? rs.getString("question_type").trim() : null);
+                    question.setSubjectId(rs.getLong("subject_id"));
+                    question.setCreatedAt(rs.getLong("question_created_at"));
+                    question.setUpdatedAt(rs.getLong("question_updated_at"));
+                    question.setAnswers(new ArrayList<>());
+
+                    questionMap.put(questionId, question);
+                }
+
+                Long answerId = rs.getLong("answer_id");
+                
+                if (answerId != 0 && !rs.wasNull()) {
+                    AnswerFullResponse answer = new AnswerFullResponse();
+                    answer.setId(answerId);
+                    answer.setContent(rs.getString("answer_content"));
+                    answer.setDescription(rs.getString("answer_description"));
+
+                    question.getAnswers().add(answer);
+                }
+            }
+
+            return new ArrayList<>(questionMap.values());
+        }, subjectId); 
     }
 
     public Optional<Question> findById(Long id) {

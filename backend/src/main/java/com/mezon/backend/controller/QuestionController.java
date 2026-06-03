@@ -1,4 +1,5 @@
 package com.mezon.backend.controller;
+
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -12,17 +13,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mezon.backend.dto.QuestionFullResponse;
 import com.mezon.backend.dto.QuestionRequest;
 import com.mezon.backend.dto.QuestionResponse;
 import com.mezon.backend.entity.Question;
 import com.mezon.backend.service.QuestionService;
-
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/questions")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class QuestionController {
-
+    // Question seeding data
     private final QuestionService questionService;
 
     public QuestionController(QuestionService questionService) {
@@ -41,6 +43,13 @@ public class QuestionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/subject/{id}")
+    public ResponseEntity<List<QuestionFullResponse>> getQuestionBySubject(@PathVariable Long id) {
+        List<QuestionFullResponse> questions = questionService.getAllQuestionsBySubject(id);
+
+        return ResponseEntity.ok(questions);
+    }
+
     @PostMapping
     public ResponseEntity<Question> createQuestion(@RequestBody QuestionRequest question) {
         Question created = questionService.createQuestion(question);
@@ -49,11 +58,11 @@ public class QuestionController {
 
     @PostMapping("/create")
     public QuestionResponse createOneQuest(@RequestBody QuestionRequest entity) {
-        //TODO: process POST request
+        // TODO: process POST request
+        System.out.print(entity);
         QuestionResponse response = questionService.createOneQuestion(entity);
         return response;
     }
-    
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateQuestion(@PathVariable Long id, @RequestBody Question question) {

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.mezon.backend.dto.ParsedQuestionDTO;
+import com.mezon.backend.dto.QuestionFullResponse;
 import com.mezon.backend.dto.QuestionRequest;
 import com.mezon.backend.dto.QuestionResponse;
 import com.mezon.backend.entity.Answer;
@@ -33,6 +34,10 @@ public class QuestionService {
 
     public List<Question> getAllQuestions() {
         return questionRepository.findAll();
+    }
+
+    public List<QuestionFullResponse> getAllQuestionsBySubject(Long subjectId) {
+        return questionRepository.findAllBySubjectId(subjectId);
     }
 
     public Optional<Question> getQuestionById(Long id) {
